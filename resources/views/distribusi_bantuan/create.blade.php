@@ -1,0 +1,66 @@
+@extends('layout.main')
+
+@section('content')
+<div class="container py-5">
+    
+
+    <div class="card shadow-sm rounded">
+        <div class="card-header bg-primary text-white text-center">
+            <h4>Formulir Distribusi Bantuan</h4>
+        </div>
+
+        <div class="card-body">
+            <form action="{{ route('admin.DistribusiBantuanStore') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <!-- Menyertakan ID diagnosis dalam form -->
+                <input type="hidden" name="diagnosis_id" value="{{ $diagnosis->id }}">
+                 <!-- Menambahkan Nama Kader -->
+                 
+        
+                <!-- Menampilkan Nama Anak (dari balita terkait diagnosis) -->
+                <div class="form-group mb-3">
+                    <label for="balita_id">Nama Anak</label>
+                    <input type="text" class="form-control" value="{{ $diagnosis->balita->nama }}" readonly>
+                    <input type="hidden" name="balita_id" value="{{ $diagnosis->balita->id }}">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="balita_id">Nama Ibu</label>
+                    <input type="text" class="form-control" value="{{ $diagnosis->balita->nama_ibu }}" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="kader">Nama Kader</label>
+                    <input type="text" name="kader" class="form-control" value="{{ Auth::user()->name }}" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="kader">Posyandu</label>
+                    <input type="text" class="form-control" value="{{ $diagnosis->balita->posyandu }}" readonly>
+                    <input type="hidden" name="balita_id" value="{{ $diagnosis->balita->id }}">
+                </div>
+                
+        
+                <!-- Menampilkan Tanggal Distribusi -->
+                <div class="form-group mb-3">
+                    <label for="tanggal_distribusi">Tanggal Distribusi</label>
+                    <input type="date" name="tanggal_distribusi" class="form-control" required>
+                </div>
+        
+                <!-- Menambahkan Foto Bukti -->
+                <div class="form-group mb-3">
+                    <label for="foto_bukti">Foto Bukti</label>
+                    <input type="file" name="foto_bukti" class="form-control" required>
+                </div>
+        
+                <!-- Menambahkan Keterangan -->
+                <div class="form-group mb-3">
+                    <label for="keterangan">Keterangan</label>
+                    <textarea name="keterangan" class="form-control" required></textarea>
+                </div>
+        
+               
+        
+                <button type="submit" class="btn btn-primary w-100">Simpan Laporan</button>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection

@@ -1,0 +1,295 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Balita;
+use App\Models\User;
+use Carbon\Carbon;
+use Spatie\Permission\Models\Role;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Storage;
+
+class DataAnakController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+{
+    $user = auth()->user();
+
+    if ($user->hasRole('admin')) {
+        // Admin bisa filter dan melihat semua posyandu
+        $listPosyandu = collect(range(1, 8))->map(function ($i) {
+            return "Posyandu Melati $i";
+        });
+
+        $query = Balita::query();
+        if ($request->filled('posyandu')) {
+            $query->where('posyandu', $request->posyandu);
+        }
+        $balitas = $query->with('user')->get();
+    } elseif ($user->hasRole('kader')) {
+        // Kader hanya bisa melihat posyandu mereka sendiri
+        $listPosyandu = [$user->posyandu]; // atau bisa kosong, tergantung kebutuhan
+        $balitas = Balita::where('posyandu', $user->posyandu)
+            ->with('user')
+            ->get();
+    } else {
+        abort(403, 'Unauthorized');
+    }
+
+    return view('DataAnak.index', compact('balitas', 'listPosyandu'));
+}
+
+
+    
+
+   
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    // public function create()
+    // {
+    //     // Mengambil data user dengan role 'ortu'
+    //     $users = User::role('ortu')->get(); // Ambil semua user dengan role ortu
+    //     return view('DataAnak.create', compact('users'));
+    // }
+
+
+
+    public function create()
+{
+    $user = auth()->user();
+
+    // Ambil semua user dengan role 'ortu' (ibu)
+    $users = User::role('ortu')->get();
+
+    if ($user->hasRole('admin')) {
+        // Admin bisa pilih semua posyandu
+        $listPosyandu = [];
+        for ($i = 1; $i <= 8; $i++) {
+            $listPosyandu[] = "Posyandu Melati $i";
+        }
+        return view('DataAnak.create', compact('listPosyandu', 'users'));
+    } elseif ($user->hasRole('kader')) {
+        // Kader hanya dapat posyandu miliknya sendiri
+        $posyandu = $user->posyandu ?? null; // pastikan ada kolom posyandu di users table
+        return view('DataAnak.create', compact('posyandu', 'users'));
+    }
+
+    // Role lain, jika ada
+    abort(403, 'Unauthorized');
+}
+
+
+public function store(Request $request)
+{
+    $user = auth()->user();
+
+    $rules = [
+        'nik' => 'required|numeric|digits:16|unique:balitas,nik',
+        'nama' => 'required|string|max:255',
+        'tanggal_lahir' => 'required|date_format:d-m-Y',
+        'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+        'img' => 'required|image|max:2048',
+        'berat_badan' => 'required|numeric|min:0',
+        'tinggi_badan' => 'required|numeric|min:0',
+        'lingkar_kepala' => 'required|numeric|min:0',
+        'nik_ibu' => 'required|numeric|digits:16',
+        //'user_id' => 'required|exists:users,id', // Kalau pakai auth, gak perlu ini
+        'alamat_lengkap' => 'required|string',
+        'rt' => 'required|string|max:3',
+        'rw' => 'required|string|max:3',
+    ];
+
+    // Jika admin, wajib input posyandu
+    if ($user->hasRole('admin')) {
+        $rules['posyandu'] = 'required|string';
+        $posyandu = $request->posyandu;
+    } elseif ($user->hasRole('kader')) {
+        // posyandu dari user login
+        $posyandu = $user->posyandu ?? null;
+        if (!$posyandu) {
+            return back()->withErrors(['posyandu' => 'Posyandu Anda belum terdaftar'])->withInput();
+        }
+    } else {
+        abort(403, 'Unauthorized');
+    }
+
+    $request->validate($rules);
+
+    try {
+        $tanggalLahir = Carbon::createFromFormat('d-m-Y', $request->tanggal_lahir)->format('Y-m-d');
+    } catch (\Exception $e) {
+        return back()->withErrors(['tanggal_lahir' => 'Format tanggal tidak valid.'])->withInput();
+    }
+
+    $data = $request->except('img');
+    $data['tanggal_lahir'] = $tanggalLahir;
+    $data['posyandu'] = $posyandu;
+    $data['user_id'] = $user->id; // Simpan user yang input (admin/kader)
+    $data['nama_ibu'] = $user->name; // Nama ibu diambil dari user login
+
+    if ($request->hasFile('img')) {
+        $file = $request->file('img');
+        $filename = now()->format('YmdHis') . '_' . Str::slug($request->nama) . '.' . $file->getClientOriginalExtension();
+        $file->storeAs('public/images/balita', $filename);
+        $data['img'] = 'storage/images/balita/' . $filename;
+    }
+
+    Balita::create($data);
+
+    if ($user->hasRole('admin')) {
+        return redirect()->route('admin.DataAnakIndex')->with('success', 'Data Balita berhasil ditambahkan oleh Admin.');
+    } else {
+        return redirect()->route('ortu.DataAnakIndex')->with('success', 'Data Balita berhasil ditambahkan.');
+    }
+}
+
+
+    
+    
+    public function store2(Request $request)
+{
+    $request->validate([
+        'nik' => 'required|numeric|digits:16|unique:balitas,nik',
+        'nama' => 'required|string|max:255',
+        'tanggal_lahir' => 'required|date_format:d-m-Y',
+        'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+        'img' => 'required|image|max:2048',
+        'berat_badan' => 'required|numeric|min:0',
+        'tinggi_badan' => 'required|numeric|min:0',
+        'lingkar_kepala' => 'required|numeric|min:0',
+        'nik_ibu' => 'required|numeric|digits:16',
+        'user_id' => 'required|exists:users,id',
+        'alamat_lengkap' => 'required|string',
+        'rt' => 'required|string|max:3',
+        'rw' => 'required|string|max:3',
+        'posyandu' => 'required|string',
+    ]);
+
+    try {
+        $tanggalLahir = Carbon::createFromFormat('d-m-Y', $request->tanggal_lahir)->format('Y-m-d');
+    } catch (\Exception $e) {
+        return back()->withErrors(['tanggal_lahir' => 'Format tanggal tidak valid.'])->withInput();
+    }
+
+    $data = $request->except('img');
+    $data['tanggal_lahir'] = $tanggalLahir;
+
+    // Ambil nama ibu dari relasi user
+    $user = User::findOrFail($request->user_id);
+    $data['nama_ibu'] = $user->name;
+
+    if ($request->hasFile('img')) {
+        $file = $request->file('img');
+        $filename = now()->format('YmdHis') . '_' . Str::slug($request->nama) . '.' . $file->getClientOriginalExtension();
+        $file->storeAs('public/images/balita', $filename);
+        $data['img'] = 'storage/images/balita/' . $filename;
+    }
+
+    Balita::create($data);
+
+    return redirect()->route('admin.DataAnakIndex')->with('success', 'Data Balita berhasil ditambahkan oleh Admin.');
+}
+
+    
+    /**
+     * Display the specified resource.
+     */
+        public function show($id)
+    {
+        // Ambil data anak berdasarkan ID
+        $balita = Balita::findOrFail($id);
+
+        // Kirim data ke view detail.blade.php
+        return view('DataAnak.show', compact('balita'));
+    }
+
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit($id)
+    {
+    $balita = Balita::findOrFail($id);
+    return view('DataAnak.edit', compact('balita'));
+    }
+   
+
+    /**
+     * Update the specified resource in storage.
+     */
+
+    public function update(Request $request, $id)
+    {
+        $balita = Balita::findOrFail($id);
+    
+        $request->validate([
+            'nik' => 'required|numeric|unique:balitas,nik,' . $id,
+            'nama' => 'required|string|max:255',
+            'tanggal_lahir' => 'required|date',
+            'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+            'img' => 'nullable|image|max:2048',
+            'berat_badan' => 'required|numeric|min:0',
+            'tinggi_badan' => 'required|numeric|min:0',
+            'nik_ibu' => 'required|numeric',
+            'nama_ibu' => 'required|string|max:255',
+            'alamat_lengkap' => 'required|string',
+            'posyandu' => 'required|string',
+        ]);
+    
+        $data = $request->except('img');
+    
+        // Konversi tanggal ke format Y-m-d
+        $data['tanggal_lahir'] = Carbon::createFromFormat('d-m-Y', $request->tanggal_lahir)->format('Y-m-d');
+    
+        if ($request->hasFile('img')) {
+            if ($balita->img) {
+                Storage::delete(str_replace('storage/', 'public/', $balita->img));
+            }
+    
+            $file = $request->file('img');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('public/images/balita', $filename);
+            $data['img'] = 'storage/images/balita/' . $filename;
+        }
+    
+        $balita->update($data);
+    
+        return redirect()->route('admin.DataAnakIndex')->with('success', 'Data Balita berhasil diperbarui.');
+    }
+    
+
+    
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy($id)
+{
+    $balita = Balita::findOrFail($id);
+
+    // Hapus file gambar jika ada
+    if ($balita->img && file_exists(public_path($balita->img))) {
+        unlink(public_path($balita->img));
+    }
+
+    $balita->delete();
+
+    return redirect()->route('admin.DataAnakIndex')->with('success', 'Data Balita berhasil dihapus.');
+}
+
+
+
+
+
+
+
+
+}
