@@ -11,7 +11,7 @@ class DistribusiBantuan extends Model
     protected $fillable = [
         'balita_id',
         'user_id',
-        'diagnosis_id',
+        'rekap_stunting_id', 
         'tanggal_distribusi',
         'foto_bukti',
         'keterangan',
@@ -19,7 +19,7 @@ class DistribusiBantuan extends Model
 
     public function datastunting()
 {
-    return $this->belongsTo(RekapStunting::class, 'diagnosis_id');
+    return $this->belongsTo(RekapStunting::class, 'rekap_stunting_id');
 }
 
 
@@ -29,7 +29,7 @@ class DistribusiBantuan extends Model
     }
 
     
-    public function User()
+    public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }

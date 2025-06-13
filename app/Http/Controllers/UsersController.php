@@ -49,43 +49,38 @@ class UsersController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        // Validasi input
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'nik' => 'required|string|max:20|unique:users,nik', // Tambahkan validasi NIK
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|max:15', // Validasi no telp
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|string',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
-    
-        // Membuat pengguna baru
-        $user = User::create([
-            'name' => $validatedData['name'],
-            'nik' => $validatedData['nik'],
-            'email' => $validatedData['email'],
-            'phone' => $validatedData['phone'],
-            'password' => Hash::make($validatedData['password']),
-        ]);
-    
-        // Upload foto jika tersedia
-        if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('photos', 'public');
-            $user->photo = $photoPath;
-        }
-    
-        // Simpan data lengkap
-        $user->save();
-    
-        // Assign role
-        $user->assignRole($validatedData['role']);
-    
-        // Redirect dengan pesan
-        return redirect()->route('admin.UsersIndex')->with('success', 'Pengguna berhasil ditambahkan.');
+   // STORE
+public function store(Request $request)
+{
+    $validatedData = $request->validate([
+        'name'     => 'required|string|max:255',
+        'nik'      => 'required|digits:16|unique:users,nik',
+        'email'    => 'required|email|unique:users,email',
+        'phone'    => 'required|string|max:15',
+        'password' => 'required|string|min:8|confirmed',
+        'role'     => 'required|string',
+        'photo'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
+
+    $user = User::create([
+        'name'     => $validatedData['name'],
+        'nik'      => $validatedData['nik'],
+        'email'    => $validatedData['email'],
+        'phone'    => $validatedData['phone'],
+        'password' => Hash::make($validatedData['password']),
+    ]);
+
+    if ($request->hasFile('photo')) {
+        $photoPath = $request->file('photo')->store('photos', 'public');
+        $user->photo = $photoPath;
     }
+
+    $user->save();
+    $user->assignRole($validatedData['role']);
+
+    return redirect()->route('admin.UsersIndex')->with('success', 'Pengguna berhasil ditambahkan.');
+}
+
     
 
     /**
@@ -107,45 +102,37 @@ class UsersController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
-    
-        // Validasi data input
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'nik' => 'required|string|max:20|unique:users,nik,' . $id,
-            'email' => 'required|email|unique:users,email,' . $id,
-            'phone' => 'required|string|max:15',
-            'role' => 'required|string',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
-    
-        // Jika ada file foto baru
-        if ($request->hasFile('photo')) {
-            // Hapus foto lama jika ada
-            if ($user->photo && \Storage::disk('public')->exists($user->photo)) {
-                \Storage::disk('public')->delete($user->photo);
-            }
-    
-            // Simpan foto baru
-            $photoPath = $request->file('photo')->store('photos', 'public');
-            $validatedData['photo'] = $photoPath;
+   // UPDATE
+public function update(Request $request, $id)
+{
+    $user = User::findOrFail($id);
+
+    $validatedData = $request->validate([
+        'name'  => 'required|string|max:255',
+        'nik'   => 'required|digits:16|unique:users,nik,' . $id,
+        'email' => 'required|email|unique:users,email,' . $id,
+        'phone' => 'required|string|max:15',
+        'role'  => 'required|string',
+        'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
+
+    if ($request->hasFile('photo')) {
+        if ($user->photo && \Storage::disk('public')->exists($user->photo)) {
+            \Storage::disk('public')->delete($user->photo);
         }
-    
-        // Update data pengguna
-        $user->update($validatedData);
-    
-        // Update role (hapus role lama terlebih dahulu jika ada)
-        if ($user->roles->isNotEmpty()) {
-            $user->syncRoles([$validatedData['role']]);
-        } else {
-            $user->assignRole($validatedData['role']);
-        }
-    
-        return redirect()->route('admin.UsersIndex')->with('success', 'Pengguna berhasil diperbarui.');
+
+        $photoPath = $request->file('photo')->store('photos', 'public');
+        $validatedData['photo'] = $photoPath;
     }
-    
+
+    $user->update($validatedData);
+
+    $user->roles->isNotEmpty()
+        ? $user->syncRoles([$validatedData['role']])
+        : $user->assignRole($validatedData['role']);
+
+    return redirect()->route('admin.UsersIndex')->with('success', 'Pengguna berhasil diperbarui.');
+}
 
 
 

@@ -54,56 +54,92 @@
 
   {{-- panggil css dinamis per halaman  --}}
   @stack('css')
-
   <style>
-    /* Mengubah warna background sidebar */
-.main-sidebar {
-    background-color: #3374ff; /* Ganti dengan warna yang diinginkan */
-}
-
-/* Mengubah warna background sidebar ketika hover */
-.main-sidebar .nav-link:hover {
-    background-color: #C70039; /* Ganti dengan warna hover yang diinginkan */
-}
-
-/* Mengubah warna teks di sidebar */
-.main-sidebar .nav-link {
-    color: white; /* Mengubah warna teks */
-}
-
-/* Mengubah warna teks ketika hover di sidebar */
-.main-sidebar .nav-link:hover {
-    color: yellow; /* Ganti dengan warna hover yang diinginkan */
-}
-
+    /* Sidebar background */
+    .main-sidebar {
+        background-color: #3374ff;
+    }
+    
+    /* Sidebar user panel background */
     .user-panel {
-  background-color: #3374ff /* Ganti dengan warna latar belakang sidebar Anda */
-}
+        background-color: #3374ff;
+    }
+    
+    /* Default sidebar link styles */
+    .main-sidebar .nav-link {
+        color: white !important; /* Teks putih default */
+        transition: color 0.3s, background-color 0.3s;
+        display: flex; /* Tambahkan ini agar item flex (icon dan p) bisa diatur */
+        align-items: center; /* Pusatkan item secara vertikal */
+        padding: 8px 15px; /* Atur padding default, sesuaikan jika perlu */
+    }
+    
+    /* Hover sidebar link */
+    .main-sidebar .nav-link:hover {
+        background-color: #C70039;
+        color: white !important;
+    }
+    
+    /* Active sidebar link */
+    .main-sidebar .nav-link.active {
+        background-color: #e2e8f0 !important; /* Abu muda */
+        color: #000000 !important;           /* Teks hitam */
+        font-weight: 600;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        border-radius: 5px;
+        /* Kita tidak lagi perlu padding-left/right di sini karena sudah diatur di .nav-link default */
+        /* Namun jika ingin padding active link berbeda, Anda bisa override di sini */
+        padding: 8px 15px; /* Contoh: samakan dengan default, atau sesuaikan */
+    }
+    
+    /* Icon di dalam SEMUA link (aktif dan tidak aktif) */
+    .main-sidebar .nav-link .nav-icon {
+        margin-right: 10px; /* Memberi jarak antara ikon dan teks */
+        /* Pastikan warna ikon default juga putih jika tidak aktif */
+        color: white; /* Default icon color for all nav-links */
+    }
+    
+    /* Icon di dalam active link */
+    .main-sidebar .nav-link.active .nav-icon {
+        color: #000000 !important; /* Ikon hitam untuk link aktif */
+    }
+    
+    
+    /* Bagian PENTING: Mengatur paragraf di dalam nav-link */
+    .main-sidebar .nav-link p {
+        flex-grow: 0;   /* Mencegah paragraf ini tumbuh memenuhi sisa ruang */
+        flex-shrink: 0; /* Mencegah paragraf ini menyusut */
+        padding-right: 20px; /* <--- Ini padding untuk teks di sisi kanan! Sesuaikan nilai ini. */
+        white-space: nowrap; /* Mencegah teks wrap ke baris baru */
+        overflow: hidden; /* Sembunyikan jika teks terlalu panjang */
+        text-overflow: ellipsis; /* Tambahkan elipsis (...) jika teks terpotong */
+    }
+    
+    
+    /* User panel text */
+    .user-panel .info h {
+        color: rgb(14, 1, 1);
+        font-size: 1.5rem;
+        line-height: 1.2;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Optional: kelas text sky blue */
+    .text-sky-blue {
+        color: #051629 !important;
+    }
 
-/* text side bar berwarna putih */
-/* Mengubah warna teks di sidebar menjadi putih */
-.main-sidebar .nav-link {
-    color: white !important; /* Menjamin warna teks menjadi putih */
+    /* logo */
+    /* Untuk Logo Germas di user-panel */
+.user-panel .info img {
+    width: 120px; /* Atur lebar yang diinginkan, contoh 120px */
+    height: auto; /* Agar proporsional */
+    /* Anda juga bisa menambahkan max-width jika ingin tetap responsif tapi dengan batas */
+    max-width: 100%; /* Pastikan tidak melebihi lebar induknya */
 }
-
-/* Mengubah warna teks ketika hover menjadi putih */
-.main-sidebar .nav-link:hover {
-    color: white !important; /* Menjamin warna teks saat hover menjadi putih */
-}
-
-
-.text-sky-blue {
-    color: #051629 !important; /* Enforce sky blue color */
-}
-
-.user-panel .info h {
-  color: rgb(14, 1, 1); /* Set the font color to white */
-    font-size: 1.5rem; /* Adjust font size to make it larger */
-    line-height: 1.2; /* Adjust line height for better spacing */
-    font-weight: bold; /* Make the text bold */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add shadow effect */
-}
-  </style>
+    
+    </style>
 
   {{-- isi konten --}}
   @yield('css')
@@ -153,9 +189,9 @@
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex justify-content-center align-items-center">
         <div class="info text-center">
-          <h href="#" class="d-block">Stunting</h>
-        </div>
-      </div>
+            <img src="{{ asset('assets/img/germas.jpg') }}" class="img-fluid w-75" alt="Logo Germas">
+            </div>
+    </div>
       
       <div class="sidebar">
         <!-- Sidebar user panel (optional) -->
@@ -183,99 +219,79 @@
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
          
          
-          
-          {{-- admin --}}
-        @if (auth()->user()->hasRole('admin'))      
-      <li class="nav-item">
-          <a href="{{ route('admin.dashboard') }}" class="nav-link">
-              <i class="nav-icon fas fa-tachometer-alt"></i>
-              <p>Dashboard</p>
-          </a>
-      </li>
+        {{-- admin --}}
+@if (auth()->user()->hasRole('admin'))      
+<li class="nav-item">
+  <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+    <i class="nav-icon fas fa-tachometer-alt"></i>
+    <p>Dashboard</p>
+  </a>
+</li>
 
-      <li class="nav-item">
-          <a href="{{ route('admin.UsersIndex') }}" class="nav-link">
-              <i class="nav-icon fas fa-user-plus"></i> <!-- Updated to user plus icon -->
-              <p>
-                  Pengguna
-              </p>
-          </a>
-      </li>
+<li class="nav-item">
+  <a href="{{ route('admin.UsersIndex') }}" class="nav-link {{ request()->routeIs('admin.UsersIndex') ? 'active' : '' }}">
+    <i class="nav-icon fas fa-user-plus"></i>
+    <p>Pengguna</p>
+  </a>
+</li>
 
-      <li class="nav-item">
-        <a href="{{ route('admin.DataAnakIndex') }}" class="nav-link">
-          <i class="nav-icon fas fa-child"></i>  
-          <p>
-            Data Balita
-          </p>
-        </a>
-    </li>
+<li class="nav-item">
+  <a href="{{ route('admin.DataAnakIndex') }}" class="nav-link {{ request()->routeIs('admin.DataAnakIndex') ? 'active' : '' }}">
+    <i class="nav-icon fas fa-child"></i>  
+    <p>Data Balita</p>
+  </a>
+</li>
 
-      <li class="nav-item">
-        <a href="{{ route('admin.jadwalposyandu') }}" class="nav-link {{ request()->routeIs('admin.jadwalposyandu') ? 'active' : '' }}">
-            <i class="nav-icon far fa-calendar-alt"></i>
-            <p>Jadwal Posyandu</p>
-        </a>
-      </li>
+<li class="nav-item">
+  <a href="{{ route('admin.jadwalposyandu') }}" class="nav-link {{ request()->routeIs('admin.jadwalposyandu') ? 'active' : '' }}">
+    <i class="nav-icon far fa-calendar-alt"></i>
+    <p>Jadwal Posyandu</p>
+  </a>
+</li>
 
-      
+<li class="nav-item">
+  <a href="{{ route('admin.RekomendasiIndex') }}" class="nav-link {{ request()->routeIs('admin.RekomendasiIndex') ? 'active' : '' }}">
+    <i class="nav-icon fas fa-hand-holding-medical"></i>  
+    <p>Rekomendasi</p>
+  </a>
+</li>
 
-      <li class="nav-item">
-        <a href="{{ route('admin.RekomendasiIndex') }}" class="nav-link">
-          <i class="nav-icon fas fa-hand-holding-medical"></i>  
-          <p>
-            Rekomendasi 
-          </p>
-        </a>
-    </li>
+<li class="nav-item">
+  <a href="{{ route('admin.DataDiagnosisIndex') }}" class="nav-link {{ request()->routeIs('admin.DataDiagnosisIndex') ? 'active' : '' }}">
+    <i class="nav-icon fas fa-stethoscope"></i>
+    <p>Diagnosis Stunting</p>
+  </a>
+</li> 
 
-        <li class="nav-item">
-          <a href="{{ route('admin.DataDiagnosisIndex') }}" class="nav-link">
-              <i class="nav-icon fas fa-stethoscope"></i>
-              <p>
-                  Diagnosis Stunting
-              </p>
-          </a>
-      </li> 
+<li class="nav-item">
+  <a href="{{ route('admin.rekapBulananIndex') }}" class="nav-link {{ request()->routeIs('admin.rekapBulananIndex') ? 'active' : '' }}">
+    <i class="nav-icon fas fa-file-medical-alt"></i>
+    <p>Rekap Bulanan</p>
+  </a>
+</li> 
 
-      <li class="nav-item">
-        <a href="{{ route('admin.rekapBulananIndex') }}" class="nav-link">
-            <i class="nav-icon fas fa-file-medical-alt"></i>
-            <p>
-                Rekap Bulanan
-            </p>
-        </a>
-    </li> 
-    <li class="nav-item">
-      <a href="{{ route('admin.RekapStuntingIndex') }}" class="nav-link">
-          <i class="nav-icon fas fa-user-injured"></i>
-          <p>
-              Rekap Stunting
-          </p>
-      </a>
-  </li> 
+<li class="nav-item">
+  <a href="{{ route('admin.RekapStuntingIndex') }}" class="nav-link {{ request()->routeIs('admin.RekapStuntingIndex') ? 'active' : '' }}">
+    <i class="nav-icon fas fa-user-injured"></i>
+    <p>Rekap Stunting</p>
+  </a>
+</li> 
 
-      <li class="nav-item">
-        <a href="{{ route('admin.pertumbuhananak') }}" class="nav-link">
-            <i class="nav-icon fas fa-clipboard-list"></i>
-            <p>
-                Pertumbuhan Anak
-            </p>
-        </a>
-    </li>
+<li class="nav-item">
+  <a href="{{ route('admin.pertumbuhananak') }}" class="nav-link {{ request()->routeIs('admin.pertumbuhananak') ? 'active' : '' }}">
+    <i class="nav-icon fas fa-clipboard-list"></i>
+    <p>Pertumbuhan Anak</p>
+  </a>
+</li>
 
+<li class="nav-item">
+  <a href="{{ route('admin.DistribusiBantuanIndex') }}" class="nav-link {{ request()->routeIs('admin.DistribusiBantuanIndex') ? 'active' : '' }}">
+    <i class="nav-icon fas fa-truck"></i>
+    <p>Distribusi Bantuan</p>
+  </a>
+</li>
+@endif
 
-    <li class="nav-item">
-      <a href="{{ route('admin.DistribusiBantuanIndex') }}" class="nav-link">
-          <i class="nav-icon fas fa-truck"></i>
-          <p>
-              Distribusi Bantuan
-          </p>
-      </a>
-    </li>
-        
-   
-     @endif
 
 
 

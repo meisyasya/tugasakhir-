@@ -47,7 +47,7 @@ class DataBalitaController extends Controller
         } catch (\Exception $e) {
             return back()->withErrors(['tanggal_lahir' => 'Format tanggal tidak valid.'])->withInput();
         }
-
+        
         // Ambil semua data kecuali file img
         $data = $request->except('img');
         $data['user_id'] = auth()->id();

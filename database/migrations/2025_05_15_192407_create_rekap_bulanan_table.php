@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('usia'); // dalam bulan
             $table->float('bb'); // berat badan
             $table->float('tb'); // tinggi badan
+            $table->float('lingkar_kepala'); // tinggi badan
             $table->float('imt'); // indeks massa tubuh
             $table->string('status_gizi');
             $table->string('hasil_diagnosis');

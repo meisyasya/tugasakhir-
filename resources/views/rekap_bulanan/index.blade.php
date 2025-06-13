@@ -40,46 +40,88 @@
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
+            {{-- Form pencarian global --}}
+            <form method="GET" action="{{ route('bidan.rekapBulananIndex') }}" class="mb-3">
+                <div class="input-group w-50">
+                    <input type="text" name="search" class="form-control" placeholder="🔍 Cari nama balita..." value="{{ request('search') }}">
+                    <button class="btn btn-primary" type="submit">Cari</button>
+                </div>
+            </form>
+
             <div class="accordion" id="rekapAccordion">
+                @php
+                    $search = request('search');
+                @endphp
+
                 @forelse($rekaps as $tanggal => $items)
-                    @php $slug = \Illuminate\Support\Str::slug($tanggal); @endphp
+                    @php 
+                        $slug = \Illuminate\Support\Str::slug($tanggal);
+                        $isOpen = false;
+
+                        if ($search) {
+                            foreach ($items as $rekap) {
+                                if (stripos($rekap->balita->nama ?? '', $search) !== false) {
+                                    $isOpen = true;
+                                    break;
+                                }
+                            }
+                        }
+                    @endphp
+
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="heading{{ $slug }}">
-                            <button class="accordion-button collapsed" type="button"
+                            <button class="accordion-button {{ $isOpen ? '' : 'collapsed' }}" type="button"
                                 data-bs-toggle="collapse" data-bs-target="#collapse{{ $slug }}"
-                                aria-expanded="false" aria-controls="collapse{{ $slug }}">
+                                aria-expanded="{{ $isOpen ? 'true' : 'false' }}" aria-controls="collapse{{ $slug }}">
                                 Tanggal: {{ $tanggal }}
                             </button>
                         </h2>
-                        <div id="collapse{{ $slug }}" class="accordion-collapse collapse"
+                        <div id="collapse{{ $slug }}" class="accordion-collapse collapse {{ $isOpen ? 'show' : '' }}"
                             aria-labelledby="heading{{ $slug }}" data-bs-parent="#rekapAccordion">
                             <div class="accordion-body">
+
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="fw-semibold">Total Balita: {{ count($items) }} balita</span>
+                                    <a href="{{ route('bidan.rekap.print', ['tanggal' => $tanggal]) }}" target="_blank" class="btn btn-success">
+                                        <i class="fas fa-print"></i> Cetak Absensi
+                                    </a>
+                                </div>
+
                                 <table class="table table-bordered table-sm">
                                     <thead class="table-light">
                                         <tr>
+                                            <th>No</th>
                                             <th>Nama Balita</th>
+                                            <th>Posyandu</th>
                                             <th>Usia (bulan)</th>
                                             <th>BB (kg)</th>
                                             <th>TB (cm)</th>
-                                            <th>IMT</th>
-                                            <th>Status Gizi</th>
-                                            <th>Hasil Diagnosis</th>
+                                            <th>Lingkar Kepala</th>
+                                            <th>Detail</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($items as $rekap)
-                                            <tr>
-                                                <td>{{ $rekap->balita->nama }}</td>
-                                                <td>{{ $rekap->usia }}</td>
-                                                <td>{{ $rekap->bb }}</td>
-                                                <td>{{ $rekap->tb }}</td>
-                                                <td>{{ $rekap->imt }}</td>
-                                                <td>{{ $rekap->status_gizi }}</td>
-                                                <td>{{ $rekap->hasil_diagnosis }}</td>
-                                            </tr>
+                                            @if (!$search || stripos($rekap->balita->nama ?? '', $search) !== false)
+                                                <tr>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ $rekap->balita->nama ?? '-' }}</td>
+                                                    <td>{{ $rekap->balita->posyandu ?? '-' }}</td>
+                                                    <td>{{ $rekap->usia }} bulan</td>
+                                                    <td>{{ $rekap->bb }} kg</td>
+                                                    <td>{{ $rekap->tb }} cm</td>
+                                                    <td>{{ $rekap->lingkar_kepala }} cm</td>
+                                                    <td>
+                                                        <a href="{{ route('bidan.rekap.show', $rekap->id) }}" class="btn btn-sm btn-primary">
+                                                            Detail
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @endif
                                         @endforeach
                                     </tbody>
                                 </table>
+
                             </div>
                         </div>
                     </div>

@@ -17,6 +17,7 @@ class RekapStunting extends Model
         'bb',
         'tb',
         'imt',
+        'status_gizi',
         'status_stunting',
         'catatan_bidan' 
     ];

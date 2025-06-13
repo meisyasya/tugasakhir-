@@ -162,13 +162,14 @@
                         <div class="col-label">Tanggal Diagnosis</div>
                         <div class="col-colon">:</div>
                         <div class="col">
-                            @if($data->tanggal_diagnosis)
-                                {{ \Carbon\Carbon::parse($data->tanggal_diagnosis)->format('d M Y') }}
+                            @if($data->tanggal)
+                                {{ \Carbon\Carbon::parse($data->tanggal)->format('d M Y') }}
                             @else
                                 N/A
                             @endif
                         </div>
                     </div>
+                    
                 </div>
                 <a href="{{ route('admin.DistribusiBantuanShow', $data->id) }}" class="btn btn-custom">Lihat Detail</a>
             </div>

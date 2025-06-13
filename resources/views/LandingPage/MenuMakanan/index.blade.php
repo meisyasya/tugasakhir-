@@ -1,242 +1,174 @@
-
 @extends('layout.main')
 
 @section('title')
     Data Kategori Makanan
 @endsection
-@section('judul')
-Kategori Makanan
-@endsection
 
+@section('judul')
+    Kategori Makanan
+@endsection
 
 @section('content')
+@php use Illuminate\Support\Str; @endphp
+
 <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
     <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0">Data Menu Makanan</h1>
-          </div><!-- /.col -->
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              
-            </ol>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Data Menu Makanan</h1>
+                </div>
+            </div>
+        </div>
     </div>
-    <!-- /.content-header -->
 
-    <!-- Main content -->
     <section class="content">
-      <div class="container-fluid">
-   
-        <div class="row">
-            <div class="col-md-6">
-              {{-- data prestasi --}}
-              <a href="" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalCreate">Tambah Data</a>
-              @if ($errors->any())
-              <div class="my-3">
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Kategori Makanan (1/3) -->
+                <div class="col-md-4">
+                    <a href="" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalCreate">Tambah Data</a>
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    @if (session('success'))
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Data Kategori Makanan</h3>
+                        </div>
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover text-nowrap">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Nama</th>
+                                        <th>Slug</th>
+                                        <th>Created At</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($categories as $item)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $item->name }}</td>
+                                        <td>{{ $item->slug }}</td>
+                                        <td>{{ $item->created_at }}</td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ $item->id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fas fa-cogs"></i> Aksi
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item text-warning" href="#" data-bs-toggle="modal" data-bs-target="#modalUpdate{{ $item->id }}">
+                                                        <i class="fas fa-pen"></i> Edit
+                                                    </a>
+                                                    <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#modalDelete{{ $item->id }}">
+                                                        <i class="fas fa-trash-alt"></i> Hapus
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    @include('LandingPage.MenuMakanan.update-modalcategory') 
+                                    @include('LandingPage.MenuMakanan.delete-modalcategory') 
+                                    @endforeach
+
+                                    @include('LandingPage.MenuMakanan.create-modalcategory')
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-            </div>
-                @endif
 
+                <!-- Menu Makanan (2/3) -->
+                <div class="col-md-8">
+                    <a href="{{ route('admin.MenuMakananCreate') }}" class="btn btn-success mb-3">Tambah Menu Makanan</a>
 
+                    <div class="swal" data-swal="{{ session('success') }}"></div>
 
-                @session('success')
-                    
-                <div class="my-3">
-                  <div class="alert alert-success">
-                      {{ session('success') }}
-                  </div>
-              </div>
-                @endsession
-                
-            
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Data Menu Makanan</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-hover table-bordered" id="dataTable">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Judul</th>
+                                        <th>Kategori</th>
+                                        <th>Deskripsi</th>
+                                        <th>Image</th>
+                                        <th>Publish Date</th>
+                                        <th>Action</th> 
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($menumakanan as $item)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $item->title }}</td>
+                                        <td>{{ $item->category->name ?? 'Tidak ada kategori' }}</td>
+                                        <td style="max-width: 300px; white-space: normal;">
+                                            {!! Str::limit(strip_tags($item->desc), 200, '...') !!}
+                                        </td>
+                                        <td>
+                                            @if (!empty($item->img) && $item->img !== 'logo.png')
+                                                <img src="{{ asset('storage/' . $item->img) }}" alt="Image" width="120" class="img-fluid rounded">
+                                            @else
+                                                <p class="text-muted">Foto belum tersedia</p>
+                                            @endif
+                                        </td>
+                                        <td>{{ $item->created_at->translatedFormat('d F Y') }}</td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ $item->id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fas fa-cogs"></i> Aksi
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item text-warning" href="#" data-bs-toggle="modal" data-bs-target="#modalUpdateMenu{{ $item->id }}">
+                                                        <i class="fas fa-pen"></i> Edit
+                                                    </a>
+                                                    <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#modalDeleteMenu{{ $item->id }}">
+                                                        <i class="fas fa-trash-alt"></i> Hapus
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
 
-              <div class="card">
-                <div class="card-header">
-                  <h3 class="card-title">Data Kategori Makanan</h3>
-  
-                 
-                </div>
-                <!-- /.card-header -->
-                <div class="card-body table-responsive p-0">
-                  <table class="table table-hover text-nowrap">
-                    <thead>
-                      <tr>
-                        <th>No</th>
-                        <th>Nama</th>
-                        <th>Slug</th>
-                        <th>Created At</th>
-                        <th>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-
-                         
-                   @foreach ($categories as $item)
-                   <tr>
-                       {{-- membuat nomer otomatis --}}
-                       <td>{{ $loop->iteration }}</td>
-                       <td>{{ $item->name }}</td>
-                       <td>{{ $item->slug }}</td>
-                       <td>{{ $item->created_at }}</td>
-                       <td>
-                  <div class="dropdown">
-                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ $item->id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                          <i class="fas fa-cogs"></i> Aksi
-                      </button>
-                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $item->id }}">
-                          <!-- Edit Option -->
-                          <a class="dropdown-item text-warning" href="#" data-bs-toggle="modal" data-bs-target="#modalUpdate{{ $item->id }}">
-                              <i class="fas fa-pen"></i> Edit
-                          </a>
-                          <!-- Hapus Option -->
-                          <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#modalDelete{{ $item->id }}">
-                              <i class="fas fa-trash-alt"></i> Hapus
-                          </a>
-                      </div>
-                  </div>
-              </td>
-                   </tr>
-
-                   {{-- modal --}}
-                   
-                    @include('LandingPage.MenuMakanan.update-modalcategory') 
-                    @include('LandingPage.MenuMakanan.delete-modalcategory') 
-                    
-                   @endforeach
-                   
-                   @include('LandingPage.MenuMakanan.create-modalcategory')
-
-                   <!-- Modal -->
-                    </tbody>
-                  </table>
-                </div>
-                <!-- /.card-body -->
-              </div>
-              <!-- /.card -->
-            </div>
-
-
-
-            {{-- tambah menu makanan --}}
-            <div class="col-md-6">
-              {{-- Tombol Tambah Article --}}
-              <a href="{{ route('admin.MenuMakananCreate') }}" class="btn btn-success mb-3" >Tambah Menu Makanan</a>
-              
-              {{-- Tampilkan error validasi --}}
-              @if ($errors->any())
-                  <div class="alert alert-danger my-3">
-                      <ul>
-                          @foreach ($errors->all() as $error)
-                              <li>{{ $error }}</li>
-                          @endforeach
-                      </ul>
-                  </div>
-              @endif
-          
-              {{-- Tampilkan pesan sukses --}}
-              {{-- @if (session('success'))
-                  <div class="alert alert-success my-3">
-                      {{ session('success') }}
-                  </div>
-              @endif --}}
-          
-              {{--  sweet alert--}}
-              <div class="swal" data-swal="{{ session('success') }}"></div>
-          
-              {{-- Tabel Data --}}
-              <div class="card">
-                  <div class="card-header">
-                      <h3 class="card-title">Data Menu Makanan</h3>
-                  </div>
-                  <!-- /.card-header -->
-                  <div class="card-body">
-                      <table class="table table-hover table-bordered" id="dataTable">
-                          <thead class="table-primary">
-                              <tr>
-                                  <th>No</th>
-                                  <th>Judul</th>
-                                  <th>Kategori</th>
-                                  <th>Deskripsi</th>
-                                  <th>Image</th>
-                                  <th>Publish Date</th>
-                                  <th>Action</th> 
-                              </tr>
-                          </thead>
-                          <tbody>
-                            @foreach ($menumakanan as $item)
-                            <tr>
-                                {{-- membuat nomer otomatis --}}
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $item->title }}</td>
-                                <td>{{ $item->category->name ?? 'Tidak ada kategori' }}</td>
-                                <td>{!! $item->desc !!}</td>
-                                <td> 
-                                  <img src="{{ asset('storage/' . $item->img) }}" alt="Image" width="200" height="auto">
-                              </td>
-                              
-                              <td>{{ $item->created_at->translatedFormat('d F Y') }}</td>
-
-                                <td>
-                           <div class="dropdown">
-                               <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ $item->id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                   <i class="fas fa-cogs"></i> Aksi
-                               </button>
-                               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $item->id }}">
-                                   <!-- Edit Option -->
-                                   <a class="dropdown-item text-warning" href="#" data-bs-toggle="modal" data-bs-target="#modalUpdateMenu{{ $item->id }}">
-                                       <i class="fas fa-pen"></i> Edit
-                                   </a>
-                                   <!-- Hapus Option -->
-                                   <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#modalDeleteMenu{{ $item->id }}">
-                                       <i class="fas fa-trash-alt"></i> Hapus
-                                   </a>
-                               </div>
-                           </div>
-                       </td>
-                            </tr>
-         
-                            {{-- modal --}}
-                            @include('LandingPage.MenuMakanan.updateMenu-modalmenu') 
-                             @include('LandingPage.MenuMakanan.deleteMenu-modalmenu') 
-                             
-                            @endforeach
-                            
-                          </tbody>
-                      </table>
-                  </div>
-                  <!-- /.card-body -->
-              </div>
-              <!-- /.card -->
-          
-          </div>
-          </div>
-        <!-- /.row (main row) -->
-      </div><!-- /.container-fluid -->
+                                    @include('LandingPage.MenuMakanan.updateMenu-modalmenu') 
+                                    @include('LandingPage.MenuMakanan.deleteMenu-modalmenu') 
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div> <!-- end col-md-8 -->
+            </div> <!-- end row -->
+        </div> <!-- end container-fluid -->
     </section>
-    <!-- /.content -->
-
-
-   
-  </div>
-
+</div>
 @endsection
-
 
 @push('js')
 <script src="https://cdn.ckeditor.com/4.20.0/standard/ckeditor.js"></script>
 <script>
-    // Dynamic CKEditor per modal
     @foreach ($menumakanan as $item)
         CKEDITOR.replace('desc{{ $item->id }}', {
             filebrowserImageBrowseUrl: '/admin/laravel-filemanager?type=Images',
@@ -246,7 +178,6 @@ Kategori Makanan
         });
     @endforeach
 
-    // Image Preview function (support multiple modals)
     function previewImage(input, previewId) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
@@ -258,4 +189,3 @@ Kategori Makanan
     }
 </script>
 @endpush
-

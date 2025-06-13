@@ -56,6 +56,7 @@
                                         <th>Usia (bulan)</th>
                                         <th>Berat Badan (kg)</th>
                                         <th>Tinggi Badan (cm)</th>
+                                        <th>Lingkar Kepala (cm)</th>
                                         <th>IMT</th>
                                         <th>Status Gizi</th>
                                         <th>Hasil Diagnosis</th>
@@ -68,30 +69,38 @@
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $diagnosis->balita->nama }}</td>
                                         <td>{{ \Carbon\Carbon::parse($diagnosis->tanggal_diagnosis)->format('d-m-Y') }}</td>
-                                        <td>{{ $diagnosis->usia }}</td>
-                                        <td>{{ $diagnosis->bb }}</td>
-                                        <td>{{ $diagnosis->tb }}</td>
+                                        <td>{{ $diagnosis->usia }} bulan</td>
+                                       
+                                        <td>{{ $diagnosis->lingkar_kepala }} bulan</td>
+                                        <td>{{ $diagnosis->bb }} cm</td>
+                                        <td>{{ $diagnosis->tb }} cm</td>
                                         <td>{{ $diagnosis->imt }}</td>
                                         <td>{{ $diagnosis->status_gizi }}</td>
                                         <td>{{ $diagnosis->hasil_diagnosis }}</td>
                                         <td>
-                                            @if(auth()->user()->can('create-post'))
-                                            <button class="btn btn-danger btn-sm btn-delete" data-id="{{ $diagnosis->id }}">Hapus</button>
-                                            <form id="form-delete-{{ $diagnosis->id }}" action="{{ route('admin.DataDiagnosisDelete', $diagnosis->id) }}" method="POST" style="display: none;">
-                                                @csrf
-                                                @method('DELETE')
-                                            </form>
-                                            @endif
-
-                                            {{-- bidan --}}
-                                            <form action="{{ route('bidan.DataDiagnosisAcc', $diagnosis->id) }}" method="POST" style="display:inline;">
-                                                @csrf
-                                                <button type="submit" class="btn btn-success btn-sm">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            </form>
-                                            
-
+                                            <div class="row g-2"> {{-- g-2 adds a small gap between columns --}}
+                                                @if(auth()->user()->can('create-post'))
+                                                <div class="col-auto"> {{-- col-auto makes the column fit its content --}}
+                                                    <button class="btn btn-danger btn-sm btn-delete w-100" data-id="{{ $diagnosis->id }}">
+                                                        <i class="fas fa-trash"></i> Hapus
+                                                    </button>
+                                                    <form id="form-delete-{{ $diagnosis->id }}" action="{{ route('admin.DataDiagnosisDelete', $diagnosis->id) }}" method="POST" style="display: none;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                    </form>
+                                                </div>
+                                                @endif
+                                        
+                                                {{-- bidan --}}
+                                                <div class="col-auto">
+                                                    <form action="{{ route('bidan.DataDiagnosisAcc', $diagnosis->id) }}" method="POST" style="display:inline;">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-success btn-sm w-100">
+                                                            <i class="fas fa-check"></i> ACC
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                     @endforeach

@@ -33,13 +33,26 @@
                     <label for="nama" class="form-label">Nama Balita</label>
                     <input type="text" name="nama" id="nama" class="form-control" placeholder="Contoh: Aisyah" value="{{ request('nama') }}">
                 </div>
-                <div class="col-md-3 d-flex align-items-end">
+                <div class="col-md-4 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary me-2">Filter</button>
-                    <a href="{{ route('bidan.RekapStuntingIndex') }}" class="btn btn-secondary">Reset</a>
+                    <a href="{{ route('bidan.RekapStuntingIndex') }}" class="btn btn-secondary me-2">Reset</a>
+
+                    @if(request('bulan'))
+                        <a href="{{ route('bidan.RekapStuntingCetakBulan', ['bulan' => request('bulan')]) }}" target="_blank" class="btn btn-success me-2">
+                            <i class="fas fa-print"></i> Cetak Bulan
+                        </a>
+                    @endif
+
+                    @if(request('bulan'))
+                        @php
+                            $tahun = \Carbon\Carbon::parse(request('bulan'))->format('Y');
+                        @endphp
+                        <a href="{{ route('bidan.RekapStuntingCetakTahun', ['tahun' => $tahun]) }}" target="_blank" class="btn btn-info">
+                            <i class="fas fa-calendar-alt"></i> Cetak Tahun
+                        </a>
+                    @endif
                 </div>
             </form>
-
-        
 
             <div class="card">
                 <div class="card-header">
@@ -51,6 +64,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nama Balita</th>
+                                <th>Nama Ibu</th>
                                 <th>Tanggal</th>
                                 <th>Usia (bln)</th>
                                 <th>BB (kg)</th>
@@ -66,6 +80,7 @@
                             <tr>
                                 <td>{{ $i + 1 }}</td>
                                 <td>{{ $rekap->balita->nama }}</td>
+                                <td>{{ $rekap->balita->nama_ibu }}</td>
                                 <td>{{ \Carbon\Carbon::parse($rekap->tanggal)->format('d-m-Y') }}</td>
                                 <td>{{ $rekap->usia }}</td>
                                 <td>{{ $rekap->bb }}</td>
@@ -74,16 +89,14 @@
                                 <td>{{ $rekap->status_stunting }}</td>
                                 <td>{{ $rekap->catatan_bidan ?? '-' }}</td>
                                 <td>
-                                
-                                    <a href="{{ route('bidan.RekapStuntingEdit', $rekap->id) }}" class="btn btn-sm btn-warning"> <i class="fas fa-edit"></i> Edit</a>
-                                
+                                    <a href="{{ route('bidan.RekapStuntingEdit', $rekap->id) }}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
                                 </td>
                             </tr>
                             @endforeach
                         </tbody>
-                        
                     </table>
-                    
                 </div>
             </div>
 
@@ -103,7 +116,7 @@
             "ordering": true,
             "pageLength": 10,
             "lengthChange": false,
-            "searching": false, // Karena ada filter form manual
+            "searching": false,
             "info": true,
             "autoWidth": false,
         });

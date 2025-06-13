@@ -36,26 +36,27 @@ class DistribusiBantuanController extends Controller
 
 
 
- public function show($id)
+public function show($id)
 {
     \Carbon\Carbon::setLocale('id');
 
     // Ambil diagnosis dan balita
     $diagnosis = RekapStunting::with('balita')->findOrFail($id);
 
-    // Ambil distribusi bantuan berdasarkan diagnosis
-    $distribusiBantuan = DistribusiBantuan::with('datastunting.balita')
-        ->where('diagnosis_id', $id)
+
+    // Ambil distribusi bantuan berdasarkan diagnosis_id
+    $distribusiBantuan = DistribusiBantuan::with('user', 'balita')
+        ->where('rekap_stunting_id', $id)
         ->latest('tanggal_distribusi')
         ->get();
 
-    // Ambil rekap stunting terbaru untuk balita (jika ingin ditampilkan)
     $rekapStuntingTerbaru = RekapStunting::where('balita_id', $diagnosis->balita_id)
         ->latest('tanggal')
         ->first();
 
     return view('distribusi_bantuan.show', compact('diagnosis', 'distribusiBantuan', 'rekapStuntingTerbaru'));
 }
+
 
 
 
@@ -69,34 +70,35 @@ class DistribusiBantuanController extends Controller
     }
 
     public function store(Request $request)
-{
-    $request->validate([
-        'diagnosis_id' => 'required|exists:rekap_stunting,id', // disesuaikan ke rekap_stunting
-        'tanggal_distribusi' => 'required|date',
-        'foto_bukti' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-        'keterangan' => 'required|string',
-    ]);
-
-    // Ambil data diagnosis (rekap stunting)
-    $rekap = RekapStunting::findOrFail($request->diagnosis_id);
-
-    // Simpan file foto bukti
-    $path = $request->file('foto_bukti')->store('bukti_distribusi', 'public');
-
-    // Simpan data distribusi bantuan
-    DistribusiBantuan::create([
-        'diagnosis_id' => $rekap->id, // Ini tetap diagnosis_id meskipun dari tabel rekap_stunting
-        'balita_id' => $rekap->balita_id,
-        'tanggal_distribusi' => $request->tanggal_distribusi,
-        'foto_bukti' => $path,
-        'keterangan' => $request->keterangan,
-        'user_id' => Auth::id(),
-    ]);
-
-    return redirect()
-        ->route('admin.DistribusiBantuanShow', ['distribusi_bantuan' => $rekap->id])
-        ->with('success', 'Distribusi bantuan berhasil ditambahkan.');
-}
+    {
+        $request->validate([
+            'rekap_stunting_id' => 'required|exists:rekap_stunting,id',
+            'tanggal_distribusi' => 'required|date',
+            'foto_bukti' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'keterangan' => 'required|string',
+        ]);
+    
+        // Ambil data diagnosis (rekap stunting)
+        $rekap = RekapStunting::findOrFail($request->rekap_stunting_id); // Ganti diagnosis_id jadi rekap_stunting_id
+    
+        // Simpan file foto bukti
+        $path = $request->file('foto_bukti')->store('bukti_distribusi', 'public');
+    
+        // Simpan data distribusi bantuan
+        DistribusiBantuan::create([
+            'rekap_stunting_id' => $rekap->id, // Sesuai nama kolom di tabel distribusi_bantuans
+            'balita_id' => $rekap->balita_id,
+            'tanggal_distribusi' => $request->tanggal_distribusi,
+            'foto_bukti' => $path,
+            'keterangan' => $request->keterangan,
+            'user_id' => Auth::id(),
+        ]);
+    
+        return redirect()
+            ->route('admin.DistribusiBantuanShow', ['distribusi_bantuan' => $rekap->id])
+            ->with('success', 'Distribusi bantuan berhasil ditambahkan.');
+    }
+    
 
     public function edit($id)
     {
@@ -107,33 +109,35 @@ class DistribusiBantuanController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'tanggal_distribusi' => 'required|date',
-            'foto_bukti' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'keterangan' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'tanggal_distribusi' => 'required|date',
+        'foto_bukti' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        'keterangan' => 'required|string',
+    ]);
 
-        $distribusi = DistribusiBantuan::findOrFail($id);
+    $distribusi = DistribusiBantuan::findOrFail($id);
 
-        // Jika ada file baru diupload, simpan yang baru
-        if ($request->hasFile('foto_bukti')) {
-            // Hapus file lama jika perlu
-            if ($distribusi->foto_bukti && \Storage::disk('public')->exists($distribusi->foto_bukti)) {
-                \Storage::disk('public')->delete($distribusi->foto_bukti);
-            }
-
-            $path = $request->file('foto_bukti')->store('bukti_distribusi', 'public');
-            $distribusi->foto_bukti = $path;
+    // Jika ada file baru diupload, simpan yang baru
+    if ($request->hasFile('foto_bukti')) {
+        // Hapus file lama jika perlu
+        if ($distribusi->foto_bukti && \Storage::disk('public')->exists($distribusi->foto_bukti)) {
+            \Storage::disk('public')->delete($distribusi->foto_bukti);
         }
 
-        $distribusi->tanggal_distribusi = $request->tanggal_distribusi;
-        $distribusi->keterangan = $request->keterangan;
-        $distribusi->save();
-
-        return redirect()->route('admin.DistribusiBantuanShow', ['distribusi_bantuan' => $request->diagnosis_id])
-            ->with('success', 'Data distribusi bantuan berhasil diperbarui.');
+        $path = $request->file('foto_bukti')->store('bukti_distribusi', 'public');
+        $distribusi->foto_bukti = $path;
     }
+
+    $distribusi->tanggal_distribusi = $request->tanggal_distribusi;
+    $distribusi->keterangan = $request->keterangan;
+    $distribusi->save();
+
+    // Ambil rekap_stunting_id dari distribusi, untuk redirect
+    return redirect()->route('admin.DistribusiBantuanShow', ['distribusi_bantuan' => $distribusi->rekap_stunting_id])
+        ->with('success', 'Data distribusi bantuan berhasil diperbarui.');
+}
+
 
     
     
@@ -144,21 +148,25 @@ class DistribusiBantuanController extends Controller
     {
         $bantuan = DistribusiBantuan::findOrFail($id);
     
-        // Hapus file bukti jika ada
-        if ($bantuan->foto_bukti && \Storage::exists('public/' . $bantuan->foto_bukti)) {
-            \Storage::delete('public/' . $bantuan->foto_bukti);
+        // Ambil rekap_stunting_id sebelum dihapus untuk redirect
+        $rekapStuntingId = $bantuan->rekap_stunting_id;
+    
+        // Hapus file foto bukti jika ada
+        if ($bantuan->foto_bukti && \Storage::disk('public')->exists($bantuan->foto_bukti)) {
+            \Storage::disk('public')->delete($bantuan->foto_bukti);
         }
     
-        // Ambil diagnosis_id yang berisi id rekap stunting
-        $rekapStuntingId = $bantuan->diagnosis_id;
-    
-        // Hapus distribusi bantuan
+        // Hapus data distribusi bantuan
         $bantuan->delete();
     
-        // Redirect ke halaman show berdasarkan rekap stunting id (diagnosis_id)
+        // Redirect ke halaman show dengan parameter rekap_stunting_id yang benar
         return redirect()->route('admin.DistribusiBantuanShow', ['distribusi_bantuan' => $rekapStuntingId])
                          ->with('success', 'Data distribusi bantuan berhasil dihapus.');
     }
+    
+    
+    
+
     
 
 

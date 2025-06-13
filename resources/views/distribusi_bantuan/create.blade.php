@@ -2,8 +2,6 @@
 
 @section('content')
 <div class="container py-5">
-    
-
     <div class="card shadow-sm rounded">
         <div class="card-header bg-primary text-white text-center">
             <h4>Formulir Distribusi Bantuan</h4>
@@ -12,52 +10,53 @@
         <div class="card-body">
             <form action="{{ route('admin.DistribusiBantuanStore') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <!-- Menyertakan ID diagnosis dalam form -->
-                <input type="hidden" name="diagnosis_id" value="{{ $diagnosis->id }}">
-                 <!-- Menambahkan Nama Kader -->
-                 
-        
-                <!-- Menampilkan Nama Anak (dari balita terkait diagnosis) -->
+                
+                <!-- Gunakan rekap_stunting_id sesuai controller -->
+                <input type="hidden" name="rekap_stunting_id" value="{{ $diagnosis->id }}">
+
+                <!-- Nama Anak -->
                 <div class="form-group mb-3">
-                    <label for="balita_id">Nama Anak</label>
-                    <input type="text" class="form-control" value="{{ $diagnosis->balita->nama }}" readonly>
+                    <label for="balita_nama">Nama Anak</label>
+                    <input type="text" id="balita_nama" class="form-control" value="{{ $diagnosis->balita->nama }}" readonly>
                     <input type="hidden" name="balita_id" value="{{ $diagnosis->balita->id }}">
                 </div>
+
+                <!-- Nama Ibu -->
                 <div class="form-group mb-3">
-                    <label for="balita_id">Nama Ibu</label>
-                    <input type="text" class="form-control" value="{{ $diagnosis->balita->nama_ibu }}" readonly>
+                    <label for="nama_ibu">Nama Ibu</label>
+                    <input type="text" id="nama_ibu" class="form-control" value="{{ $diagnosis->balita->nama_ibu }}" readonly>
                 </div>
+
+                <!-- Nama Kader -->
                 <div class="form-group mb-3">
                     <label for="kader">Nama Kader</label>
-                    <input type="text" name="kader" class="form-control" value="{{ Auth::user()->name }}" readonly>
+                    <input type="text" id="kader" name="kader" class="form-control" value="{{ Auth::user()->name }}" readonly>
                 </div>
+
+                <!-- Posyandu -->
                 <div class="form-group mb-3">
-                    <label for="kader">Posyandu</label>
-                    <input type="text" class="form-control" value="{{ $diagnosis->balita->posyandu }}" readonly>
-                    <input type="hidden" name="balita_id" value="{{ $diagnosis->balita->id }}">
+                    <label for="posyandu">Posyandu</label>
+                    <input type="text" id="posyandu" class="form-control" value="{{ $diagnosis->balita->posyandu }}" readonly>
                 </div>
-                
-        
-                <!-- Menampilkan Tanggal Distribusi -->
+
+                <!-- Tanggal Distribusi -->
                 <div class="form-group mb-3">
                     <label for="tanggal_distribusi">Tanggal Distribusi</label>
-                    <input type="date" name="tanggal_distribusi" class="form-control" required>
+                    <input type="date" name="tanggal_distribusi" id="tanggal_distribusi" class="form-control" required>
                 </div>
-        
-                <!-- Menambahkan Foto Bukti -->
+
+                <!-- Foto Bukti -->
                 <div class="form-group mb-3">
                     <label for="foto_bukti">Foto Bukti</label>
-                    <input type="file" name="foto_bukti" class="form-control" required>
+                    <input type="file" name="foto_bukti" id="foto_bukti" class="form-control" required>
                 </div>
-        
-                <!-- Menambahkan Keterangan -->
+
+                <!-- Keterangan -->
                 <div class="form-group mb-3">
                     <label for="keterangan">Keterangan</label>
-                    <textarea name="keterangan" class="form-control" required></textarea>
+                    <textarea name="keterangan" id="keterangan" class="form-control" required></textarea>
                 </div>
-        
-               
-        
+
                 <button type="submit" class="btn btn-primary w-100">Simpan Laporan</button>
             </form>
         </div>

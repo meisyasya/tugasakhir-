@@ -235,12 +235,12 @@
               </div> 
           </div>
           <div class="col-lg-7 position-relative about-img">
-                @if (!empty($headers->image) && $headers->image !== 'logo.png')
-                <img src="{{ asset('storage/header/' . $headers->image) }}" alt="header Image"
-                class="img-fluid rounded mx-auto d-block w-100 h-auto">
-                 @else
-                    <p class="text-muted text-center">Foto belum tersedia</p>
-                @endif
+            @if (!empty($headers->image) && $headers->image !== 'logo.png')
+            <img src="{{ asset('storage/header/' . $headers->image) }}" alt="header Image"
+            class="img-fluid rounded mx-auto d-block w-100 h-auto">
+           @else
+            <p class="text-muted text-center">Foto belum tersedia</p>
+            @endif        
 
         </div>              
       </div>
@@ -364,29 +364,33 @@
           {{-- All Menu --}}
           <div class="tab-pane fade active show" id="menu-all">
             <div class="row gy-4">
-              @forelse ($menumakanan as $item)
-                <div class="col-lg-4 col-md-6 menu-item" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
-                  <div class="card shadow-sm border-0 rounded h-100">
-                    <div class="glightbox">
-                      <img src="{{ $item->img ? asset('storage/' . $item->img) : asset('images/placeholder.png') }}"
-                           class="menu-img img-fluid rounded-top"
-                           alt="{{ $item->title }}"
-                           style="height: 200px; object-fit: cover;">
-                    </div>
-                    <div class="card-body text-center">
-                      <span class="badge bg-warning text-dark mb-2">{{ $item->kategori->name ?? 'Kategori' }}</span>
-                      <h4 class="fw-bold">{{ $item->title }}</h4>
-                      @if ($item->harga)
-                        <p class="text-success fw-semibold mb-1">Rp {{ number_format($item->harga, 0, ',', '.') }}</p>
-                      @endif
-                      <p class="ingredients text-muted small">{!! Str::words($item->desc, 15, '...') !!}</p>
-                      <a href="{{ route('menu.show', $item->slug) }}" class="text-primary fw-semibold">Lihat Selengkapnya →</a>
-                    </div>
-                  </div>
-                </div>
-              @empty
-                <p class="text-muted text-center">Belum ada menu tersedia.</p>
-              @endforelse
+              {{-- All Menu --}}
+<div class="tab-pane fade active show" id="menu-all">
+  <div class="row gy-4">
+    @forelse ($menumakanan as $item)
+      <div class="col-lg-4 col-md-6 menu-item" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+        <div class="card shadow-sm border-0 rounded h-100">
+          <div class="glightbox">
+            <img src="{{ $item->img ? asset('storage/' . $item->img) : asset('images/placeholder.png') }}"
+                 class="menu-img img-fluid rounded-top"
+                 alt="{{ $item->title }}"
+                 style="height: 200px; object-fit: cover;">
+          </div>
+          <div class="card-body text-center">
+            <span class="badge bg-warning text-dark mb-2">{{ $item->category->name ?? 'Kategori' }}</span>
+            <h4 class="fw-bold">{{ $item->title }}</h4>
+
+            <p class="ingredients text-muted small">{!! Str::words($item->desc, 15, '...') !!}</p>
+            <a href="{{ route('menu.show', $item->slug) }}" class="text-primary fw-semibold">Lihat Selengkapnya →</a>
+          </div>
+        </div>
+      </div>
+    @empty
+      <p class="text-muted text-center">Belum ada menu tersedia.</p>
+    @endforelse
+  </div>
+</div>
+
             </div>
           </div>
     
@@ -406,9 +410,7 @@
                       <div class="card-body text-center">
                         <span class="badge bg-warning text-dark mb-2">{{ $item->name }}</span>
                         <h4 class="fw-bold">{{ $menu->title }}</h4>
-                        @if ($menu->harga)
-                          <p class="text-success fw-semibold mb-1">Rp {{ number_format($menu->harga, 0, ',', '.') }}</p>
-                        @endif
+                      
                         <p class="ingredients text-muted small">{!! Str::words($menu->desc, 15, '...') !!}</p>
                         <a href="/p/{{ $menu->slug }}" class="text-primary text-decoration-none fw-semibold">Lihat selengkapnya →</a>
                       </div>
@@ -438,76 +440,208 @@
       </div>
     </section><!-- End Testimonials Section -->
 
-    <!-- ======= Events Section ======= -->
-    <section id="events" class="events">
-      <div class="container-fluid" data-aos="fade-up">
+  
 
-        <div class="section-header">
-          <h2>BERITA</h2>
-          <p>Info <span>Stunting</span> Anak</p>
+
+    {{-- arikel --}}
+    <section id="events" class="events py-5" style="background-color: #f8f9fa;">
+      <div class="container" data-aos="fade-up">
+    
+        {{-- Section Header --}}
+        <div class="section-header text-center mb-4">
+          <h2 class="text-primary">ARTIKEL</h2>
+          <p>Info <span class="text-warning">Stunting</span> Anak</p>
         </div>
-
-        <div class="slides-3 swiper" data-aos="fade-up" data-aos-delay="100">
-          <div class="swiper-wrapper">
-
-            <div class="swiper-slide event-item d-flex flex-column justify-content-end" style="background-image: url(assets/img/maoss.jpg)">
-            <h3>21 September 2023</h3>
-              <div class="price align-self-start">Pemerintah Kecamatan Maos Terus Upayakan Penurunan Stunting</div>
-              <p class="description">
-              Pemerintah Kecamatan Maos berhasil mencatat penurunan angka stunting, meskipun belum signifikan. Data terbaru menunjukkan bahwa angka stunting yang semula mencapai 94 kasus telah berhasil diturunkan menjadi 75 kasus. Namun, upaya penurunan angka stunting ini masih memerlukan dorongan serius.
-              </p>
-            </div><!-- End Event item -->
-
-            <div class="swiper-slide event-item d-flex flex-column justify-content-end" style="background-image: url(assets/img/garam.png)">
-              <h3>29 Agustus 2023</h3>
-              <div class="price align-self-start">Kabpuaten Cilacap Gagas,Desa Bebas Garam Non Yodium dan Bebas Stunting</div>    
-              <p class="description">
-              Pemerintah Kabupaten Cilacap dalam waktu dekat berencana melaksanakan monitoring dan sosialisasi garam beryodium. Langkah ini merupakan dukungan terhadap upaya Pemprov Jateng dalam membentuk Desa Bebas Garam Non Yodium dan Desa Bebas Stunting. Target untuk Kabupaten Cilacap sendiri, pada 2019 minimal terbentuk 10 desa.
-            </p>
-            </div><!-- End Event item -->
-
-            <div class="swiper-slide event-item d-flex flex-column justify-content-end" style="background-image: url(assets/img/prevalensi.jpg)">
-              <h3>5 Januari 2023</h3>
-              <div class="price align-self-start">Cilacap Kejar Penurunan Prevalensi Stunting 2024</div>
-              <p class="description">
-              Intervensi percepatan penanganan stunting masih menjadi program prioritas Pemkab Cilacap. Program Penimbangan Serentak (Pentak) yang menyasar seluruh bayi di Kabupaten Cilacap ini akan menjadi gambaran bagaimana prevalensi stunting di Kabupaten Cilacap.            
-            </p>
-            </div><!-- End Event item -->
-
+    
+        {{-- Navigation Tabs --}}
+        <ul class="nav nav-tabs d-flex justify-content-center mb-4" data-aos="fade-up" data-aos-delay="200" role="tablist">
+          <li class="nav-item mx-2" role="presentation">
+            <button class="nav-link active" id="tab-all" data-bs-toggle="tab" data-bs-target="#articles-all" type="button" role="tab" aria-controls="articles-all" aria-selected="true">
+              <h4 class="font-weight-bold text-dark">Semua</h4>
+            </button>
+          </li>
+          @foreach ($categories as $category)
+            <li class="nav-item mx-2" role="presentation">
+              <button class="nav-link" id="tab-{{ $category->slug }}" data-bs-toggle="tab" data-bs-target="#articles-{{ $category->slug }}" type="button" role="tab" aria-controls="articles-{{ $category->slug }}" aria-selected="false">
+                <h4 class="font-weight-bold text-dark">{{ $category->name }}</h4>
+              </button>
+            </li>
+          @endforeach
+        </ul>
+    
+        {{-- Tab Content --}}
+        <div class="tab-content" data-aos="fade-up" data-aos-delay="300">
+    
+          {{-- Semua Artikel --}}
+          <div class="tab-pane fade show active" id="articles-all" role="tabpanel" aria-labelledby="tab-all">
+            <div class="row gy-4">
+              @forelse ($articles as $article)
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                  <div class="card shadow-sm border-0 rounded h-100">
+                    {{-- {{ route('article.show', $article->slug) }} --}}
+                    <a href="" class="d-block overflow-hidden rounded-top">
+                      <img src="{{ $article->img ? asset('storage/uploads/articles/' . $article->img) : asset('images/placeholder.png') }}"
+                           alt="{{ $article->title }}"
+                           class="img-fluid"
+                           style="height: 200px; object-fit: cover;">
+                    </a>
+                    <div class="card-body text-center">
+                      <span class="badge bg-warning text-dark mb-2">{{ $article->category->name ?? 'Kategori' }}</span>
+                      <h4 class="fw-bold">{{ $article->title }}</h4>
+                      <p class="description text-muted small">{{ \Illuminate\Support\Str::limit(strip_tags($article->desc), 100, '...') }}</p>
+                      {{-- {{ route('article.show', $article->slug) }} --}}
+                      <a href="" class="text-primary fw-semibold">Baca Selengkapnya →</a>
+                    </div>
+                  </div>
+                </div>
+              @empty
+                <p class="text-muted text-center">Belum ada artikel tersedia.</p>
+              @endforelse
+            </div>
           </div>
-          <div class="swiper-pagination"></div>
+    
+          {{-- Artikel per Kategori --}}
+          @foreach ($categories as $category)
+            <div class="tab-pane fade" id="articles-{{ $category->slug }}" role="tabpanel" aria-labelledby="tab-{{ $category->slug }}">
+              <div class="row gy-4">
+                @php
+                  $articlesByCategory = $articles->where('category_id', $category->id);
+                @endphp
+    
+                @forelse ($articlesByCategory as $article)
+                  <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                    <div class="card shadow-sm border-0 rounded h-100">
+                      {{-- {{ route('article.show', $article->slug) }} --}}
+                      <a href="" class="d-block overflow-hidden rounded-top">
+                        <img src="{{ $article->img ? asset('storage/uploads/articles/' . $article->img) : asset('images/placeholder.png') }}"
+                             alt="{{ $article->title }}"
+                             class="img-fluid"
+                             style="height: 200px; object-fit: cover;">
+                      </a>
+                      <div class="card-body text-center">
+                        <span class="badge bg-warning text-dark mb-2">{{ $category->name }}</span>
+                        <h4 class="fw-bold">{{ $article->title }}</h4>
+                        <p class="description text-muted small">{{ \Illuminate\Support\Str::limit(strip_tags($article->desc), 100, '...') }}</p>
+                        <a href="" class="text-primary fw-semibold">Baca Selengkapnya →</a>
+                        {{-- {{ route('article.show', $article->slug) }} --}}
+                      </div>
+                    </div>
+                  </div>
+                @empty
+                  <p class="text-muted text-center">Belum ada artikel untuk kategori ini.</p>
+                @endforelse
+              </div>
+            </div>
+          @endforeach
+    
         </div>
-
+    
       </div>
-    </section><!-- End Events Section -->
+    </section>
+    
+    {{-- end artikel --}}
 
     
   
     <!-- ======= Gallery Section ======= -->
-    <section id="gallery" class="gallery section-bg">
-      <div class="container" data-aos="fade-up">
-
-        <div class="section-header">
-          <h2>Galeri</h2>
-          <p> <span>Posyandu</span></p>
-        </div>
-
-        <div class="gallery-slider swiper">
-          <div class="swiper-wrapper align-items-center">
-            <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/posyandu3.jpeg"><img src="assets/img/gallery/posyandu3.jpeg" class="img-fluid" alt=""></a></div>
-            <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/posyandu4.jpeg"><img src="assets/img/gallery/posyandu4.jpeg" class="img-fluid" alt=""></a></div>
-            <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/posyandu6.jpeg"><img src="assets/img/gallery/posyandu6.jpeg" class="img-fluid" alt=""></a></div>
-            <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/posyandu8.jpeg"><img src="assets/img/gallery/posyandu8.jpeg" class="img-fluid" alt=""></a></div>
-            <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/posyandu9.jpeg"><img src="assets/img/gallery/posyandu9.jpeg" class="img-fluid" alt=""></a></div>
-            <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/posyandu6.jpeg"><img src="assets/img/gallery/posyandu6.jpeg" class="img-fluid" alt=""></a></div>
-            <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/posyandu9.jpeg"><img src="assets/img/gallery/posyadnu9.jpeg" class="img-fluid" alt=""></a></div>
-            <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/posyandu8.jpeg"><img src="assets/img/gallery/posyandu8.jpeg" class="img-fluid" alt=""></a></div>
-          </div>
-          <div class="swiper-pagination"></div>
-        </div>
-
+   <!-- Galeri Section -->
+<div class="about-us mt-5">
+  <div class="container">
+      <div class="title-container">
+          <h2 class="text-center fw-bold">GALERI</h2>
       </div>
-    </section><!-- End Gallery Section -->
+
+      <!-- Filter Kategori -->
+      <div class="row mt-4">
+          <div class="col-md-12 d-flex justify-content-center">
+              <ul class="list-unstyled d-flex portfolio-filter flex-wrap gap-2">
+                  <li data-filter="*" class="py-2 px-4 filter-active">Semua</li>
+                  @foreach ($galeri_categories as $category)
+                      <li data-filter=".filter-{{ $category->id }}" class="py-2 px-4 btn-secondary">{{ $category->name }}</li>
+                  @endforeach
+              </ul>                
+          </div>
+      </div>
+
+      <!-- Galeri Gambar -->
+      <div class="row mt-5">
+          <div class="col-md-12">
+              <div class="row gambar-container" data-aos="zoom-in-up">
+                  @forelse ($galeris as $item)
+                      <div class="col-md-4 col-sm-6 mb-4 gambar-item filter-{{ $item->category_id }}" data-aos="fade-up">
+                          <a href="{{ asset('storage/' . $item->img) }}" 
+                             data-lightbox="galeri-{{ $item->category_id }}" 
+                             data-title="{{ $item->title ?? 'Gambar Posyandu' }}">
+                              <img src="{{ asset('storage/' . $item->img) }}" 
+                                   alt="{{ $item->title ?? 'Gambar Posyandu' }}" 
+                                   class="img-fluid rounded shadow">
+                          </a>
+                      </div>
+                  @empty
+                      <p class="text-center text-muted">Belum ada gambar tersedia.</p>
+                  @endforelse
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+@push('css')
+<link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
+<style>
+  .portfolio-filter li {
+      cursor: pointer;
+      border-radius: 5px;
+  }
+
+  .filter-active {
+      background-color: #00b347;
+      color: #fff !important;
+  }
+
+  .btn-secondary {
+      background-color: #f0f0f0;
+      color: #000;
+  }
+
+  .gambar-item img {
+      transition: transform 0.3s ease;
+  }
+
+  .gambar-item img:hover {
+      transform: scale(1.05);
+  }
+</style>
+@endpush
+
+@push('js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/imagesloaded/4.1.4/imagesloaded.pkgd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/isotope-layout/3.0.6/isotope.pkgd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+<script>
+  $(window).on('load', function () {
+      var $grid = $('.gambar-container').isotope({
+          itemSelector: '.gambar-item',
+          layoutMode: 'fitRows'
+      });
+
+      $('.gambar-container').imagesLoaded().progress(function () {
+          $grid.isotope('layout');
+      });
+
+      $('.portfolio-filter li').on('click', function () {
+          $('.portfolio-filter li').removeClass('filter-active');
+          $(this).addClass('filter-active');
+
+          var filterValue = $(this).attr('data-filter');
+          $grid.isotope({ filter: filterValue });
+      });
+  });
+</script>
+@endpush
+
+    <!-- End Gallery Section -->
 
     
         <div class="mb-3">

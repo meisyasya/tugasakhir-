@@ -21,6 +21,7 @@ class CreateDiagnosesTable extends Migration
             $table->float('bb'); // Berat Badan
             $table->float('tb'); // Tinggi Badan
             $table->float('imt'); // Indeks Massa Tubuh
+            $table->float('lingkar_kepala')->nullable(); //  kolom lingkar_kepala
             $table->string('status_gizi');
             $table->text('hasil_diagnosis');
             $table->timestamps();

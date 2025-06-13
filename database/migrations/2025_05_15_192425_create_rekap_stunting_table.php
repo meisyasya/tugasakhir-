@@ -20,6 +20,7 @@ return new class extends Migration
             $table->float('bb'); // berat badan
             $table->float('tb'); // tinggi badan
             $table->float('imt'); // indeks massa tubuh
+            $table->string('status_gizi');
             $table->string('status_stunting'); // contoh: "Stunting Ringan", "Stunting Berat"
             $table->timestamps();
 

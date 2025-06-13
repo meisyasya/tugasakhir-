@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\RekapStunting;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class RekapStuntingController extends Controller
@@ -51,6 +52,51 @@ public function update(Request $request, $id)
 
     return redirect()->route('bidan.RekapStuntingIndex')->with('success', 'Catatan berhasil diperbarui.');
 }
+
+public function cetakBulan(Request $request)
+{
+    $bulan = $request->bulan;
+
+    if (!$bulan) {
+        return redirect()->back()->with('error', 'Bulan harus dipilih.');
+    }
+
+    $tanggalBulan = Carbon::parse($bulan);
+    $rekaps = RekapStunting::with('balita')
+        ->whereMonth('tanggal', $tanggalBulan->month)
+        ->whereYear('tanggal', $tanggalBulan->year)
+        ->whereNotNull('status_stunting')
+        ->orderBy('tanggal', 'asc')
+        ->get();
+
+    $pdf = Pdf::loadView('rekap_stunting.cetak_bulan', compact('rekaps', 'tanggalBulan'))
+        ->setPaper('A4', 'landscape');
+
+    $namaFile = 'Rekap-Stunting-Bulan-' . $tanggalBulan->format('F-Y') . '.pdf';
+    return $pdf->stream($namaFile);
+}
+
+public function cetakTahun(Request $request)
+{
+    $tahun = $request->tahun;
+
+    if (!$tahun) {
+        return redirect()->back()->with('error', 'Tahun harus dipilih.');
+    }
+
+    $rekaps = RekapStunting::with('balita')
+        ->whereYear('tanggal', $tahun)
+        ->whereNotNull('status_stunting')
+        ->orderBy('tanggal', 'asc')
+        ->get();
+
+    $pdf = Pdf::loadView('rekap_stunting.cetak_tahun', compact('rekaps', 'tahun'))
+        ->setPaper('A4', 'landscape');
+
+    $namaFile = 'Rekap-Stunting-Tahun-' . $tahun . '.pdf';
+    return $pdf->stream($namaFile);
+}
+
 
 
 }

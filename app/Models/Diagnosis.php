@@ -15,6 +15,7 @@ class Diagnosis extends Model
     'usia',
     'bb',
     'tb',
+    'lingkar_kepala',
     'imt',
     'status_gizi',
     'hasil_diagnosis',

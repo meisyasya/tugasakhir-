@@ -87,7 +87,7 @@ class DataAnakController extends Controller
 }
 
 
-public function store(Request $request)
+public function store2(Request $request)
 {
     $user = auth()->user();
 
@@ -154,7 +154,7 @@ public function store(Request $request)
 
     
     
-    public function store2(Request $request)
+    public function store(Request $request)
 {
     $request->validate([
         'nik' => 'required|numeric|digits:16|unique:balitas,nik',

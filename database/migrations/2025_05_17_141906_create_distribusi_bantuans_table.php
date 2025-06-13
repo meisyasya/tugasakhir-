@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('foto_bukti')->nullable();
             $table->text('keterangan')->nullable();
             $table->timestamps();
-        
             $table->foreign('balita_id')->references('id')->on('balitas')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('rekap_stunting_id')->references('id')->on('rekap_stunting')->onDelete('cascade');

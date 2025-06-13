@@ -3,6 +3,31 @@
 @push('css')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* jarak antar elemen */
+}
+
+.label {
+  min-width: 120px; /* atau sesuaikan lebar label agar sama semua */
+  font-weight: bold;
+  color: #343a40;
+}
+
+.separator {
+  width: 10px; /* ukuran titik dua supaya konsisten */
+  text-align: center;
+  font-weight: bold;
+  color: #343a40;
+}
+
+.value {
+  color: #495057;
+}
+
+
     /* General body and layout */
     html, body {
         height: 100%;
@@ -133,12 +158,37 @@
                 <div class="card card-custom">
                     <div class="card-header card-header-custom">INFORMASI BALITA</div>
                     <div class="card-body">
-                        <div class="info-row"><strong>Nama</strong>: {{ $diagnosis->balita->nama }}</div>
-                        <div class="info-row"><strong>NIK</strong>: {{ $diagnosis->balita->nik }}</div>
-                        <div class="info-row"><strong>Tanggal Lahir</strong>: {{ \Carbon\Carbon::parse($diagnosis->balita->tanggal_lahir)->format('d-m-Y') }}</div>
-                        <div class="info-row"><strong>Jenis Kelamin</strong>: {{ $diagnosis->balita->jenis_kelamin }}</div>
-                        <div class="info-row"><strong>Nama Ibu</strong>: {{ $diagnosis->balita->nama_ibu }}</div>
-                        <div class="info-row"><strong>Alamat</strong>: {{ $diagnosis->balita->alamat_lengkap }}</div>
+                        <div class="info-row">
+                            <span class="label">Nama</span>
+                            <span class="separator">:</span>
+                            <span class="value">{{ $diagnosis->balita->nama }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">NIK</span>
+                            <span class="separator">:</span>
+                            <span class="value">{{ $diagnosis->balita->nik }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Tanggal Lahir</span>
+                            <span class="separator">:</span>
+                            <span class="value">{{ \Carbon\Carbon::parse($diagnosis->balita->tanggal_lahir)->format('d-m-Y') }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Jenis Kelamin</span>
+                            <span class="separator">:</span>
+                            <span class="value"> {{ $diagnosis->balita->jenis_kelamin }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Nama Ibu</span>
+                            <span class="separator">:</span>
+                            <span class="value"> {{ $diagnosis->balita->nama_ibu }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Alamat</span>
+                            <span class="separator">:</span>
+                            <span class="value"> {{ $diagnosis->balita->alamat_lengkap }}</span>
+                        </div>
+                          
                     </div>
                 </div>
             </div>
@@ -148,18 +198,45 @@
                 <div class="card card-custom">
                     <div class="card-header card-header-custom">HASIL DIAGNOSIS</div>
                     <div class="card-body">
-                        <div class="info-row"><strong>Tanggal Diagnosis</strong>: {{ \Carbon\Carbon::parse($diagnosis->tanggal_diagnosis)->format('d-m-Y') }}</div>
-                        <div class="info-row"><strong>Usia</strong>: {{ $diagnosis->usia }}</div>
-                        <div class="info-row"><strong>Berat Badan</strong>: {{ $diagnosis->bb }} kg</div>
-                        <div class="info-row"><strong>Tinggi Badan</strong>: {{ $diagnosis->tb }} cm</div>
-                        <div class="info-row"><strong>IMT</strong>: {{ $diagnosis->imt }}</div>
-                        <div class="info-row"><strong>Status Gizi</strong>: {{ $diagnosis->status_gizi }}</div>
                         <div class="info-row">
-                            <strong>Status Stunting</strong>: 
-                            <span class="{{ strtolower($diagnosis->hasil_diagnosis) == 'stunting berat' ? 'highlight-text' : '' }}">
-                                {{ $diagnosis->hasil_diagnosis }}
-                            </span>
+                            <span class="label">Tanggal Diagnosis</span>
+                            <span class="separator">:</span>
+                            <span class="value"> {{ \Carbon\Carbon::parse($diagnosis->tanggal_diagnosis)->format('d-m-Y') }}</span>
                         </div>
+                        <div class="info-row">
+                            <span class="label">Usia</span>
+                            <span class="separator">:</span>
+                            <span class="value">{{ $diagnosis->usia }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Berat Badan</span>
+                            <span class="separator">:</span>
+                            <span class="value">{{ $diagnosis->bb }} kg</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Tinggi Badan</span>
+                            <span class="separator">:</span>
+                            <span class="value">{{ $diagnosis->tb }} cm</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">IMT</span>
+                            <span class="separator">:</span>
+                            <span class="value">{{ $diagnosis->imt }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Status Gizi</span>
+                            <span class="separator">:</span>
+                            <span class="value">{{ $diagnosis->status_gizi }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Status Stunting</span>
+                            <span class="separator">:</span>
+                            <span class="value {{ strtolower($diagnosis->status_stunting) == 'stunting berat' ? 'highlight-text' : '' }}">{{ $diagnosis->status_stunting }}</span>
+                        </div>
+                   
+
+                        
+                        
                     </div>
                 </div>
             </div>
@@ -199,7 +276,7 @@
                                 <td>{{ Auth::user()->name }}</td>
                                 <td>
                                     <!-- Form Hapus dengan Modal -->
-                                    <form action="{{ route('admin.DistribusiBantuanDelete', $bantuan->id) }}" method="POST" style="display: inline-block;">
+                                    <form action="{{ route('admin.DistribusiBantuanDelete', ['distribusi_bantuan' => $bantuan->id]) }}" method="POST" style="display: inline-block;">
                                         @csrf
                                         @method('DELETE')
 

@@ -19,8 +19,8 @@
 
                   <div class="form-group">
                       <label>NIK</label>
-                      <input type="text" name="nik" class="form-control" required>
-                  </div>
+                      <input type="number" name="nik" class="form-control" required minlength="16" maxlength="16">
+                    </div>
 
                   <div class="form-group">
                       <label>Email</label>

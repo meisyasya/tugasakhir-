@@ -21,41 +21,37 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-     // Menangani percobaan login
-     public function login_proses(Request $request)
-     {
-         // Validasi
-         $request->validate([
-             'email' => 'required|email',
-             'password' => 'required|string|min:6',
-         ]);
- 
-         // Pengecekan login
-         if (Auth::attempt([
+    public function login_proses(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string|min:6',
+        ]);
+        if (Auth::attempt([
             'email' => $request->email,
             'password' => $request->password
         ], $request->remember)) {
-        
             $user = Auth::user();
-        
             // Cek role dan redirect sesuai
             if ($user->hasRole('admin')) {
                 return redirect()->route('admin.dashboard');
             } elseif ($user->hasRole('bidan')) {
-                return redirect()->route('bidan.dashboard'); // sesuaikan jika ada
+                return redirect()->route('bidan.dashboard');
             } elseif ($user->hasRole('pemdes')) {
-                return redirect()->route('pemdes.dashboard'); // sesuaikan jika ada
+                return redirect()->route('pemdes.dashboard');
             } elseif ($user->hasRole('kader')) {
-                return redirect()->route('kader.dashboard'); // sesuaikan jika ada
+                return redirect()->route('kader.dashboard');
             } elseif ($user->hasRole('ortu')) {
-                return redirect()->route('ortu.dashboard'); // arahkan ke rute orang tua
+                return redirect()->route('ortu.dashboard');
             }
-        
-            // Jika role tidak dikenali
-            return redirect()->route('login')->withErrors(['loginError' => 'Role tidak dikenali']);
+            // Role tidak dikenali
+            Auth::logout(); // Logout user yang tidak valid
+            return redirect()->route('login')->withErrors(['loginError' => 'Role tidak dikenali.']);
         }
-        
-     }
+        // Jika login gagal (email/password salah)
+        return back()->withErrors(['loginError' => 'Email atau password salah.'])->withInput();
+    }
  
 
     public function forgot_password(){
