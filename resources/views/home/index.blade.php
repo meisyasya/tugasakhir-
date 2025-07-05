@@ -1,5 +1,70 @@
 @extends('layout.app')
 
+@push('css')
+<link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
+<style>
+  .nav-tabs {
+      border-bottom: none !important;
+  }
+
+  .nav-tabs .nav-link {
+      border: none !important;
+      border-radius: 5px;
+      font-weight: 600;
+      color: #6c757d;
+      transition: all 0.3s ease;
+  }
+
+  .nav-tabs .nav-link.active,
+  .nav-tabs .nav-link:hover {
+      background-color:#007bff;
+      color: #fff !important;
+  }
+
+  .nav-tabs .nav-link.active h4,
+  .nav-tabs .nav-link:hover h4 {
+      color: #fff !important;
+  }
+
+  .galeri-wrapper {
+      background-color: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .galeri-wrapper:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+
+  .galeri-img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      display: block;
+  }
+
+  .galeri-item {
+      padding: 8px;
+      visibility: hidden;
+  }
+
+  .galeri-item.is-visible {
+      visibility: visible;
+  }
+
+  .gambar-container, 
+  [class^="gambar-container-"] {
+      margin: -8px;
+  }
+  .grid-sizer {
+      width: 33.3333%;
+  }
+</style>
+@endpush
+
 
 <style>
   .section-header {
@@ -248,25 +313,29 @@
 </section>
 {{-- end header --}}
 
+<div class="section-header text-center mb-2">
+  <p style="padding-top: 30px;">
+    <b>
+    @php
+      $judul_stunting = $abouts->title ?? 'STUNTING?';
+      $kata_stunting = explode(' ', $judul_stunting);
+      $kataTerakhir_stunting = array_pop($kata_stunting);
+      $sisaKata_stunting = implode(' ', $kata_stunting);
+    @endphp
+    {{ $sisaKata_stunting }} <span class="text-warning">{{ $kataTerakhir_stunting }}</span>
+  </b>
+  </p>
+</div>
+
 
 
 {{-- section about --}}
 <section id="about" class="about">
+  
   <div class="about-card container position-relative" data-aos="fade-up">
 
-    <div class="section-header">
-      <h2>
-        @php
-        $judul = $abouts->title ?? 'Data belum tersedia';
-        $kata = explode(' ', $judul);
-        $kataTerakhir = array_pop($kata);
-        $sisaKata = implode(' ', $kata);
-      @endphp
-      </h2>
-      <p>
-        {{ $sisaKata }} <span style="color: #e30613;">{{ $kataTerakhir }}</span>
-      </p>   
-
+    
+    
     <div class="row align-items-center">
       <!-- Teks -->
       <div class="col-lg-6" data-aos="fade-up" data-aos-delay="300">
@@ -279,19 +348,21 @@
 
       <!-- Gambar -->
       @if (isset($abouts->image) && $abouts->image !== 'logo.png')
-      <div class="col-lg-6" data-aos="fade-left" data-aos-delay="300">
-        <img src="{{ asset('storage/about/' . $abouts->image) }}"
-     alt="About"
-     class="img-fluid mx-auto d-block"
-     style="max-width: 500px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-
-
-         </div>
+        <div class="col-lg-6" data-aos="fade-left" data-aos-delay="300">
+          <img src="{{ asset('storage/about/' . $abouts->image) }}"
+               alt="About"
+               class="img-fluid mx-auto d-block"
+               style="max-width: 500px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        </div>
       @endif
     </div>
+
+  </div>
+
   </div>
 </section>
-<!-- End About Section -->
+
+
 
 
 
@@ -444,6 +515,7 @@
 
 
     {{-- arikel --}}
+   
     <section id="events" class="events py-5" style="background-color: #f8f9fa;">
       <div class="container" data-aos="fade-up">
     
@@ -454,17 +526,17 @@
         </div>
     
         {{-- Navigation Tabs --}}
-        <ul class="nav nav-tabs d-flex justify-content-center mb-4" data-aos="fade-up" data-aos-delay="200" role="tablist">
-          <li class="nav-item mx-2" role="presentation">
-            <button class="nav-link active" id="tab-all" data-bs-toggle="tab" data-bs-target="#articles-all" type="button" role="tab" aria-controls="articles-all" aria-selected="true">
-              <h4 class="font-weight-bold text-dark">Semua</h4>
-            </button>
+        <ul class="nav nav-tabs d-flex justify-content-center mb-4" data-aos="fade-up" data-aos-delay="200">
+          <li class="nav-item mx-2">
+            <a class="nav-link active show" data-bs-toggle="tab" data-bs-target="#articles-all">
+              <h5 class="font-weight-bold text-dark">All</h5>
+            </a>
           </li>
-          @foreach ($categories as $category)
-            <li class="nav-item mx-2" role="presentation">
-              <button class="nav-link" id="tab-{{ $category->slug }}" data-bs-toggle="tab" data-bs-target="#articles-{{ $category->slug }}" type="button" role="tab" aria-controls="articles-{{ $category->slug }}" aria-selected="false">
-                <h4 class="font-weight-bold text-dark">{{ $category->name }}</h4>
-              </button>
+          @foreach ($categories as $item)
+            <li class="nav-item mx-2">
+              <a class="nav-link" data-bs-toggle="tab" data-bs-target="#articles-{{ $item->slug }}">
+                <h5 class="font-weight-bold text-dark">{{ $item->name }}</h5>
+              </a>
             </li>
           @endforeach
         </ul>
@@ -473,13 +545,12 @@
         <div class="tab-content" data-aos="fade-up" data-aos-delay="300">
     
           {{-- Semua Artikel --}}
-          <div class="tab-pane fade show active" id="articles-all" role="tabpanel" aria-labelledby="tab-all">
+          <div class="tab-pane fade show active" id="articles-all" role="tabpanel">
             <div class="row gy-4">
               @forelse ($articles as $article)
                 <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
                   <div class="card shadow-sm border-0 rounded h-100">
-                    {{-- {{ route('article.show', $article->slug) }} --}}
-                    <a href="" class="d-block overflow-hidden rounded-top">
+                    <a href="{{ route('article.show', $article->slug) }}" class="d-block overflow-hidden rounded-top">
                       <img src="{{ $article->img ? asset('storage/uploads/articles/' . $article->img) : asset('images/placeholder.png') }}"
                            alt="{{ $article->title }}"
                            class="img-fluid"
@@ -489,8 +560,7 @@
                       <span class="badge bg-warning text-dark mb-2">{{ $article->category->name ?? 'Kategori' }}</span>
                       <h4 class="fw-bold">{{ $article->title }}</h4>
                       <p class="description text-muted small">{{ \Illuminate\Support\Str::limit(strip_tags($article->desc), 100, '...') }}</p>
-                      {{-- {{ route('article.show', $article->slug) }} --}}
-                      <a href="" class="text-primary fw-semibold">Baca Selengkapnya →</a>
+                      <a href="{{ route('article.show', $article->slug) }}" class="text-primary fw-semibold">Baca Selengkapnya →</a>
                     </div>
                   </div>
                 </div>
@@ -502,17 +572,15 @@
     
           {{-- Artikel per Kategori --}}
           @foreach ($categories as $category)
-            <div class="tab-pane fade" id="articles-{{ $category->slug }}" role="tabpanel" aria-labelledby="tab-{{ $category->slug }}">
+            <div class="tab-pane fade" id="articles-{{ $category->slug }}" role="tabpanel">
               <div class="row gy-4">
                 @php
                   $articlesByCategory = $articles->where('category_id', $category->id);
                 @endphp
-    
                 @forelse ($articlesByCategory as $article)
                   <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
                     <div class="card shadow-sm border-0 rounded h-100">
-                      {{-- {{ route('article.show', $article->slug) }} --}}
-                      <a href="" class="d-block overflow-hidden rounded-top">
+                      <a href="{{ route('article.show', $article->slug) }}" class="d-block overflow-hidden rounded-top">
                         <img src="{{ $article->img ? asset('storage/uploads/articles/' . $article->img) : asset('images/placeholder.png') }}"
                              alt="{{ $article->title }}"
                              class="img-fluid"
@@ -522,8 +590,7 @@
                         <span class="badge bg-warning text-dark mb-2">{{ $category->name }}</span>
                         <h4 class="fw-bold">{{ $article->title }}</h4>
                         <p class="description text-muted small">{{ \Illuminate\Support\Str::limit(strip_tags($article->desc), 100, '...') }}</p>
-                        <a href="" class="text-primary fw-semibold">Baca Selengkapnya →</a>
-                        {{-- {{ route('article.show', $article->slug) }} --}}
+                        <a href="{{ route('article.show', $article->slug) }}" class="text-primary fw-semibold">Baca Selengkapnya →</a>
                       </div>
                     </div>
                   </div>
@@ -540,178 +607,137 @@
     </section>
     
     {{-- end artikel --}}
-
-    
-  
-    <!-- ======= Gallery Section ======= -->
-   <!-- Galeri Section -->
-<div class="about-us mt-5">
-  <div class="container">
-      <div class="title-container">
-          <h2 class="text-center fw-bold">GALERI</h2>
-      </div>
-
-      <!-- Filter Kategori -->
-      <div class="row mt-4">
-          <div class="col-md-12 d-flex justify-content-center">
-              <ul class="list-unstyled d-flex portfolio-filter flex-wrap gap-2">
-                  <li data-filter="*" class="py-2 px-4 filter-active">Semua</li>
-                  @foreach ($galeri_categories as $category)
-                      <li data-filter=".filter-{{ $category->id }}" class="py-2 px-4 btn-secondary">{{ $category->name }}</li>
-                  @endforeach
-              </ul>                
+    <div class="about-us mt-5 mb-5">
+      <div class="container">
+          {{-- Section Header --}}
+          <div class="section-header text-center mb-4">
+              <p>Galeri <span class="text-warning">Posyandu</span> Anak</p>
           </div>
-      </div>
-
-      <!-- Galeri Gambar -->
-      <div class="row mt-5">
-          <div class="col-md-12">
-              <div class="row gambar-container" data-aos="zoom-in-up">
-                  @forelse ($galeris as $item)
-                      <div class="col-md-4 col-sm-6 mb-4 gambar-item filter-{{ $item->category_id }}" data-aos="fade-up">
-                          <a href="{{ asset('storage/' . $item->img) }}" 
-                             data-lightbox="galeri-{{ $item->category_id }}" 
-                             data-title="{{ $item->title ?? 'Gambar Posyandu' }}">
-                              <img src="{{ asset('storage/' . $item->img) }}" 
-                                   alt="{{ $item->title ?? 'Gambar Posyandu' }}" 
-                                   class="img-fluid rounded shadow">
-                          </a>
-                      </div>
-                  @empty
-                      <p class="text-center text-muted">Belum ada gambar tersedia.</p>
-                  @endforelse
+  
+          {{-- FILTER KATEGORI --}}
+          <div class="row mt-4">
+              <div class="col-md-12 d-flex justify-content-center">
+                  <ul class="list-unstyled d-flex flex-wrap portfolio-filter">
+                      <li data-filter="*" class="py-2 px-4 filter-active">All</li>
+                      @foreach ($categorigaleri as $item)
+                          <li data-filter=".filter-{{ $item->id }}" class="py-2 px-4">
+                              {{ $item->name }}
+                          </li>
+                      @endforeach
+                  </ul>
+              </div>
+          </div>
+  
+          {{-- GALERI MASONRY --}}
+          <div class="row mt-4">
+              <div class="col-md-12">
+                  <div class="gambar-container" data-aos="zoom-in-up">
+                      <div class="grid-sizer"></div>
+  
+                      @foreach ($galeris as $dokumentasi)
+                          <div class="gambar-item filter-{{ $dokumentasi->category_id }}">
+                              <a href="{{ asset('storage/' . $dokumentasi->img) }}"
+                                 data-lightbox="galeri"
+                                 data-title="{{ $dokumentasi->name }}">
+                                  <img src="{{ asset('storage/' . $dokumentasi->img) }}"
+                                       alt="{{ $dokumentasi->name }}"
+                                       class="img-fluid w-100 rounded-2"
+                                       style="object-fit: cover;">
+                              </a>
+                          </div>
+                      @endforeach
+                  </div>
               </div>
           </div>
       </div>
   </div>
-</div>
-
-@push('css')
-<link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
-<style>
+  
+  
+  @push('css')
+  <style>
+  /* ================================
+     FILTER KATEGORI (PORTFOLIO MENU)
+     ================================ */
   .portfolio-filter li {
       cursor: pointer;
-      border-radius: 5px;
+      border: 1px solid transparent;
+      margin: 5px; /* Jarak antar tombol filter */
+      border-radius: 6px;
+      transition: 0.3s ease;
+      padding: 8px 15px;
+      font-size: 0.95rem;
+      white-space: nowrap;
   }
-
-  .filter-active {
-      background-color: #00b347;
-      color: #fff !important;
-  }
-
-  .btn-secondary {
-      background-color: #f0f0f0;
-      color: #000;
-  }
-
-  .gambar-item img {
-      transition: transform 0.3s ease;
-  }
-
-  .gambar-item img:hover {
-      transform: scale(1.05);
-  }
-</style>
-@endpush
-
-@push('js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/imagesloaded/4.1.4/imagesloaded.pkgd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/isotope-layout/3.0.6/isotope.pkgd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
-<script>
-  $(window).on('load', function () {
-      var $grid = $('.gambar-container').isotope({
-          itemSelector: '.gambar-item',
-          layoutMode: 'fitRows'
-      });
-
-      $('.gambar-container').imagesLoaded().progress(function () {
-          $grid.isotope('layout');
-      });
-
-      $('.portfolio-filter li').on('click', function () {
-          $('.portfolio-filter li').removeClass('filter-active');
-          $(this).addClass('filter-active');
-
-          var filterValue = $(this).attr('data-filter');
-          $grid.isotope({ filter: filterValue });
-      });
-  });
-</script>
-@endpush
-
-    <!-- End Gallery Section -->
-
-    
-        <div class="mb-3">
-          <iframe style="border:0; width: 100%; height: 350px;" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d33133.89860455798!2d109.08408036657883!3d-7.6087472915351935!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e656b29dc084053%3A0x7d0f41d9ab2cf615!2sUPTD%20Puskesmas%20Kesugihan%20I!5e0!3m2!1sid!2sid!4v1701047598463!5m2!1sid!2sid" frameborder="0" allowfullscreen></iframe>
-        </div><!-- End Google Maps -->
-
   
-  <!-- ======= Footer ======= -->
-  <footer id="footer" class="footer">
+  .portfolio-filter li.filter-active {
+      background-color: #007bff;
+      color: white;
+      border-color: #007bff;
+  }
+  
+  /* ========================
+     KONTENER GRID ISOTOPE
+     ======================== */
+  .gambar-container {
+      position: relative;
+      margin-left: auto;
+      margin-right: auto;
+  }
+  
+  /* ======================
+     GRID SIZER & ITEM
+     ====================== */
+  .grid-sizer,
+  .gambar-item {
+      width: 33.333%; /* Default: 3 kolom di desktop */
+  }
+  
+  .gambar-item {
+      padding: 8px;
+      box-sizing: border-box;
+      text-align: center;
+  }
+  
+  /* ======================
+     RESPONSIVE BREAKPOINTS
+     ====================== */
+  
+  /* Desktop ≥ 992px: 3 kolom */
+  @media (min-width: 992px) {
+      .grid-sizer,
+      .gambar-item {
+          width: 28%;
+      }
+  }
+  
+  /* Tablet ≥ 768px & < 992px: 2 kolom */
+  @media (min-width: 768px) and (max-width: 991.98px) {
+      .grid-sizer,
+      .gambar-item {
+          width: 50%;
+      }
+  }
+  
+  /* Mobile < 768px: 1 kolom */
+  @media (max-width: 767.98px) {
+      .grid-sizer,
+      .gambar-item {
+          width: 100%;
+      }
+  }
+  
+  /* ===========================
+     GAMBAR DI DALAM GRID ITEM
+     =========================== */
+  .gambar-item img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+  }
+  </style>
+  @endpush
+  
 
-    <div class="container">
-      <div class="row gy-3">
-        <div class="col-lg-3 col-md-6 d-flex">
-          <i class="bi bi-geo-alt icon"></i>
-          <div>
-            <h4>Alamat</h4>
-            <p>
-              Jalan Tambangan RT 04 RW 02 Desa Bulupayung<br>
-              Kesugihan<br>
-            </p>
-          </div>
 
-        </div>
-
-        <div class="col-lg-3 col-md-6 footer-links d-flex">
-          <i class="bi bi-telephone icon"></i>
-          <div>
-            <h4>Kontak</h4>
-            <p>
-              <strong>Phone:</strong> 088232649021<br>
-              <strong>Email:</strong>sipenting20@gmail.com<br>
-            </p>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 footer-links d-flex">
-          <i class="bi bi-clock icon"></i>
-          <div>
-            <h4>Jam Buka</h4>
-            <p>
-              <strong>Senin-Jum'at : </strong> 08.00 - 11.00<br>
-              Sabtu Minggu Tutup
-            </p>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 footer-links">
-          <h4>Ikuti Sosmed Kami</h4>
-          <div class="social-links d-flex">
-            <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
-            <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
-            <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
-            <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="container">
-      <div class="copyright">
-        &copy; Copyright <strong><span>Sipenting</span></strong>. All Rights Reserved
-      </div>
-      <div class="credits">
-    
-        Designed by <a href="https://bootstrapmade.com/">meisyanggra</a>
-      </div>
-    </div>
-
-  </footer><!-- End Footer -->
-  <!-- End Footer -->
 
   @endsection

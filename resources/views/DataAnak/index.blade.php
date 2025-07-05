@@ -28,11 +28,18 @@
             <div class="d-flex justify-content-between mb-3">
                 <!-- Left side for 'Tambah Data Balita' button -->
                 <div>
-                    @if(auth()->user()->can('create-post'))
+                    @can('post-admin')
                     <a href="{{ route('admin.DataAnakCreate') }}" class="btn btn-success">
                         <i class="fas fa-plus"></i> Tambah Data Balita
                     </a>
-                    @endif
+                    @endcan
+                    @can('post-kader')
+                    {{-- untuk  kader --}}
+                    <a href="{{ route('kader.DataAnakCreate') }}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Tambah Data Balita
+                    </a>
+                    @endcan
+                
                 </div>
 
                 <!-- Right side for 'Filter Posyandu' dropdown -->
@@ -91,20 +98,39 @@
                                             <td>{{ $balita->user->name ?? '-' }}</td>
                                             <td>{{ $balita->posyandu }}</td>
                                             <td>
-                                               {{-- Tombol Detail --}}
+                                               
+                                                @can('post-admin')
                                                 <a href="{{ route('admin.DataAnakShow', $balita->id) }}" class="btn btn-info btn-sm">
                                                     <i class="fas fa-eye"></i> Detail
                                                 </a>
-
-                                                {{-- Tombol Edit --}}
-                                                @can('edit-post')
                                                 <a href="{{ route('admin.DataAnakEdit', $balita->id) }}" class="btn btn-warning btn-sm">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </a>   
-                                                @endcan
-                                                {{-- Tombol Hapus --}}
-                                                @can('delete-post')
                                                 <form id="delete-form-{{ $balita->id }}" action="{{ route('admin.DataAnakDelete', $balita->id) }}" method="POST" style="display: inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $balita->id }})">
+                                                        <i class="fas fa-trash"></i> Hapus
+                                                    </button>
+                                                </form>
+                                                @endcan
+
+                                                @can('post-bidan')
+                                                <a href="{{ route('bidan.DataAnakShow', $balita->id) }}" class="btn btn-info btn-sm">
+                                                    <i class="fas fa-eye"></i> Detail
+                                                </a>
+                                                @endcan
+                                              
+
+                                                @can('post-kader')
+                                                {{-- kader --}}
+                                                <a href="{{ route('kader.DataAnakShow', $balita->id) }}" class="btn btn-info btn-sm">
+                                                    <i class="fas fa-eye"></i> Detail
+                                                </a>
+                                                <a href="{{ route('kader.DataAnakEdit', $balita->id) }}" class="btn btn-warning btn-sm">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>   
+                                                <form id="delete-form-{{ $balita->id }}" action="{{ route('kader.DataAnakDelete', $balita->id) }}" method="POST" style="display: inline;">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $balita->id }})">

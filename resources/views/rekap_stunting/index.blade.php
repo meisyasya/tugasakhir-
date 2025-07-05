@@ -23,8 +23,7 @@
     <section class="content">
         <div class="container-fluid">
 
-            {{-- Filter Form --}}
-            <form method="GET" class="row mb-3">
+            <form method="GET" class="row mb-3 align-items-end">
                 <div class="col-md-3">
                     <label for="bulan" class="form-label">Filter Bulan</label>
                     <input type="month" name="bulan" id="bulan" class="form-control" value="{{ request('bulan') }}">
@@ -33,7 +32,7 @@
                     <label for="nama" class="form-label">Nama Balita</label>
                     <input type="text" name="nama" id="nama" class="form-control" placeholder="Contoh: Aisyah" value="{{ request('nama') }}">
                 </div>
-                <div class="col-md-4 d-flex align-items-end">
+                <div class="col-md-4 d-flex">
                     <button type="submit" class="btn btn-primary me-2">Filter</button>
                     <a href="{{ route('bidan.RekapStuntingIndex') }}" class="btn btn-secondary me-2">Reset</a>
 
@@ -59,7 +58,7 @@
                     <h3 class="card-title">Data Rekap Stunting</h3>
                 </div>
                 <div class="card-body">
-                    <table id="rekapTable" class="table table-bordered">
+                    <table id="rekapTable" class="table table-bordered table-hover">
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -72,7 +71,9 @@
                                 <th>IMT</th>
                                 <th>Status Stunting</th>
                                 <th>Catatan Bidan</th>
+                                @can('post-bidan')
                                 <th>Aksi</th>
+                                @endcan
                             </tr>
                         </thead>
                         <tbody>
@@ -88,11 +89,13 @@
                                 <td>{{ $rekap->imt }}</td>
                                 <td>{{ $rekap->status_stunting }}</td>
                                 <td>{{ $rekap->catatan_bidan ?? '-' }}</td>
+                                @can('post-bidan')
                                 <td>
                                     <a href="{{ route('bidan.RekapStuntingEdit', $rekap->id) }}" class="btn btn-sm btn-warning">
                                         <i class="fas fa-edit"></i> Edit
                                     </a>
                                 </td>
+                                @endcan
                             </tr>
                             @endforeach
                         </tbody>

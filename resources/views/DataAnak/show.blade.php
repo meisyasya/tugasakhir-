@@ -27,10 +27,23 @@
     <section class="content">
         <div class="container-fluid">
             
-            <!-- Tombol Kembali -->
+            @can('post-admin')
             <a href="{{ route('admin.DataAnakIndex') }}" class="btn btn-secondary mb-3">
                 <i class="fas fa-arrow-left"></i> Kembali
             </a>
+            @endcan
+            @can('post-kader')
+            <a href="{{ route('kader.DataAnakIndex') }}" class="btn btn-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+            @endcan
+            @can('post-bidan')
+            <a href="{{ route('bidan.DataAnakIndex') }}" class="btn btn-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a> 
+            @endcan 
+            
+
 
             <div class="row">
                 <!-- Data Anak -->
@@ -128,6 +141,7 @@
                 </div>
 
                 <!-- Tombol Edit -->
+                @can('post-admin')
                 <div class="col-12">
                     <div class="text-center mt-3">
                         <a href="{{ route('admin.DataAnakEdit', $balita->id) }}" class="btn btn-warning">
@@ -135,6 +149,17 @@
                         </a>
                     </div>
                 </div>
+                @endcan
+
+                @can('post-kader')
+                <div class="col-12">
+                    <div class="text-center mt-3">
+                        <a href="{{ route('kader.DataAnakEdit', $balita->id) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit Data
+                        </a>
+                    </div>
+                </div>
+                @endcan
 
             </div>
         </div>

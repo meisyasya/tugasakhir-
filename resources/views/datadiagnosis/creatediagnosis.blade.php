@@ -52,6 +52,8 @@
                             <h3 class="card-title"><i class="fas fa-baby"></i> Form Tambah Data Diagnosis</h3>
                         </div>
                         <div class="card-body">
+
+                            @can('post-admin')
                             <form action="{{ route('admin.DataDiagnosisStore') }}" method="POST">
                                 @csrf
 
@@ -147,6 +149,105 @@
                                     </button>
                                 </div>
                             </form>
+                            @endcan
+
+                            @can('post-kader')
+                            <form action="{{ route('kader.DataDiagnosisStore') }}" method="POST">
+                                @csrf
+
+                                <h5 class="mb-3"><strong>📝 Data Balita </strong></h5>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="nik"><i class="fas fa-id-card"></i> NIK</label>
+                                            <input type="number" name="nik" id="nik" class="form-control" value="{{ old('nik') }}" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="nama"><i class="fas fa-user"></i> Nama</label>
+                                            <select name="nama" id="nama" class="form-control select2" required>
+                                                <option value="" hidden>-- choose --</option>
+                                                @foreach ($balitas as $item)
+                                                    <option value="{{ $item->id }}" 
+                                                        data-nik="{{ $item->nik }}" 
+                                                        data-jenis_kelamin="{{ $item->jenis_kelamin }}" 
+                                                        data-posyandu="{{ $item->posyandu }} "
+                                                        data-tanggal-lahir="{{ $item->tanggal_lahir }}"
+                                                        data-nama-ibu="{{ $item->nama_ibu }}">
+                                                        {{ $item->nama }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="tanggal_lahir"><i class="fas fa-calendar-alt"></i> Tanggal Lahir</label>
+                                            <!-- Tanggal Lahir asli (untuk form processing) -->
+                                            <input type="hidden" name="tanggal_lahir" id="tanggal_lahir">
+
+                                            <!-- Tampilan format dd-mm-yy -->
+                                            <input type="text" class="form-control" id="tanggal_lahir_display" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="posyandu"><i class="fas fa-clinic-medical"></i> Posyandu</label>
+                                            <input type="text" name="posyandu" id="posyandu" class="form-control" value="{{ old('posyandu') }}" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="nama_ibu"><i class="fas fa-female"></i> Nama Ibu</label>
+                                    <input type="text" name="nama_ibu" id="nama_ibu" class="form-control" value="{{ old('nama_ibu') }}" readonly>
+                                </div>
+
+                                <h5 class="mb-3"><strong>📊 Data Pertumbuhan</strong></h5>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="berat_badan"><i class="fas fa-weight"></i> Berat Badan (kg)</label>
+                                            <input type="number" name="berat_badan" id="berat_badan" class="form-control" value="{{ old('berat_badan') }}" step="0.01" min="0" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="tinggi_badan"><i class="fas fa-ruler-vertical"></i> Tinggi Badan (cm)</label>
+                                            <input type="number" name="tinggi_badan" id="tinggi_badan" class="form-control" value="{{ old('tinggi_badan') }}" step="0.1" min="0" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="lingkar_kepala"><i class="fas fa-head-side-mask"></i> Lingkar Kepala (cm)</label>
+                                            <input type="number" name="lingkar_kepala" id="lingkar_kepala" class="form-control" value="{{ old('lingkar_kepala') }}" step="0.1" min="0" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tanggal Pencatatan -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="tanggal_pencatatan"><i class="fas fa-calendar-day"></i> Tanggal Pencatatan</label>
+                                            <input type="date" name="tanggal_pencatatan" id="tanggal_pencatatan" class="form-control" value="{{ old('tanggal_pencatatan') }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-center w-100">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save"></i> Simpan Data
+                                    </button>
+                                </div>
+                            </form>
+                            @endcan
                         </div>
                     </div> <!-- End Card -->
                 </div>

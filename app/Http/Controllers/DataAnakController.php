@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth; 
 
 class DataAnakController extends Controller
 {
@@ -18,32 +19,53 @@ class DataAnakController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-{
-    $user = auth()->user();
+    {
+        $user = Auth::user(); // Gunakan Auth::user() untuk konsistensi
 
-    if ($user->hasRole('admin')) {
-        // Admin bisa filter dan melihat semua posyandu
-        $listPosyandu = collect(range(1, 8))->map(function ($i) {
-            return "Posyandu Melati $i";
-        });
+        $balitas = collect(); // Inisialisasi koleksi kosong
+        $listPosyandu = collect(); // Inisialisasi koleksi kosong
 
-        $query = Balita::query();
-        if ($request->filled('posyandu')) {
-            $query->where('posyandu', $request->posyandu);
+        if ($user->hasRole('admin')) {
+            // Admin bisa filter dan melihat semua posyandu
+            $listPosyandu = collect(range(1, 8))->map(function ($i) {
+                return "Posyandu Melati $i";
+            });
+
+            $query = Balita::query();
+            if ($request->filled('posyandu')) {
+                $query->where('posyandu', $request->posyandu);
+            }
+            $balitas = $query->with('user')->get();
+
+        } elseif ($user->hasRole('kader')) {
+            // Kader hanya bisa melihat posyandu mereka sendiri
+            $listPosyandu = collect([$user->posyandu]); // Pastikan ini array/collection
+            $balitas = Balita::where('posyandu', $user->posyandu)
+                ->with('user')
+                ->get();
+
+        } elseif ($user->hasRole('bidan')) {
+            // Bidan melihat semua data balita (atau sesuaikan jika ada batasan area)
+            $listPosyandu = collect(range(1, 8))->map(function ($i) {
+                return "Posyandu Melati $i";
+            });
+            $balitas = Balita::with('user')->get();
+
+        } elseif ($user->hasRole('ortu')) { // Tambahkan kondisi untuk peran 'ortu'
+            // Orang tua hanya bisa melihat balita yang terkait dengan user_id mereka
+            // Filter posyandu tidak relevan untuk ortu karena hanya melihat anaknya sendiri
+            $listPosyandu = collect(); // Atau ambil posyandu dari anaknya jika perlu ditampikan
+            $balitas = Balita::where('user_id', $user->id)
+                ->with('user')
+                ->get();
+
+        } else {
+            // Jika user tidak memiliki peran yang diizinkan
+            abort(403, 'Unauthorized');
         }
-        $balitas = $query->with('user')->get();
-    } elseif ($user->hasRole('kader')) {
-        // Kader hanya bisa melihat posyandu mereka sendiri
-        $listPosyandu = [$user->posyandu]; // atau bisa kosong, tergantung kebutuhan
-        $balitas = Balita::where('posyandu', $user->posyandu)
-            ->with('user')
-            ->get();
-    } else {
-        abort(403, 'Unauthorized');
-    }
 
-    return view('DataAnak.index', compact('balitas', 'listPosyandu'));
-}
+        return view('DataAnak.index', compact('balitas', 'listPosyandu'));
+    }
 
 
     
@@ -195,8 +217,19 @@ public function store2(Request $request)
 
     Balita::create($data);
 
-    return redirect()->route('admin.DataAnakIndex')->with('success', 'Data Balita berhasil ditambahkan oleh Admin.');
+    if (auth()->user()->hasRole('admin')) {
+        return redirect()->route('admin.DataAnakIndex')->with('success', 'Data Balita berhasil ditambahkan oleh Admin.');
+    } elseif (auth()->user()->hasRole('kader')) {
+        // Anda perlu menentukan rute untuk kader.
+        // Misalnya, 'kader.DataAnakIndex' atau 'kader.dashboard'
+        return redirect()->route('kader.DataAnakIndex')->with('success', 'Data Balita berhasil ditambahkan oleh Kader.');
+    }
+
+    // Fallback jika tidak ada peran yang cocok (jarang terjadi jika otorisasi sudah di-handle)
+    return redirect('/dashboard')->with('success', 'Data Balita berhasil ditambahkan.');
 }
+
+    // Fallback jika tidak ada peran yang cocok (jarang terjadi jika otorisasi sudah di-ha}
 
     
     /**
@@ -261,8 +294,17 @@ public function store2(Request $request)
         }
     
         $balita->update($data);
+
+        if (auth()->user()->hasRole('admin')) {
+            return redirect()->route('admin.DataAnakIndex')->with('success', 'Data Balita berhasil diperbarui oleh Admin.');
+        } elseif (auth()->user()->hasRole('kader')) {
+           
+            return redirect()->route('kader.DataAnakIndex')->with('success', 'Data Balita berhasil diperbarui oleh Kader.');
+        }
     
-        return redirect()->route('admin.DataAnakIndex')->with('success', 'Data Balita berhasil diperbarui.');
+        // Fallback jika tidak ada peran yang cocok (jarang terjadi jika otorisasi sudah di-handle)
+        return redirect('/dashboard')->with('success', 'Data Balita berhasil ditambahkan.');
+    
     }
     
 
@@ -282,7 +324,16 @@ public function store2(Request $request)
 
     $balita->delete();
 
-    return redirect()->route('admin.DataAnakIndex')->with('success', 'Data Balita berhasil dihapus.');
+    if (auth()->user()->hasRole('admin')) {
+        return redirect()->route('admin.DataAnakIndex')->with('success', 'Data Balita berhasil dihapus oleh Admin.');
+    } elseif (auth()->user()->hasRole('kader')) {
+        // Anda perlu menentukan rute untuk kader setelah penghapusan.
+        // Misalnya, 'kader.DataAnakIndex' atau rute lain yang relevan.
+        return redirect()->route('kader.DataAnakIndex')->with('success', 'Data Balita berhasil dihapus oleh Kader.');
+    }
+
+    // Fallback jika tidak ada peran yang cocok atau rute default
+    return redirect('/dashboard')->with('success', 'Data Balita berhasil dihapus.');
 }
 
 

@@ -17,5 +17,7 @@ class RekapBulanan extends Model
     {
         return $this->belongsTo(Balita::class);
     }
+
+    
     
 }

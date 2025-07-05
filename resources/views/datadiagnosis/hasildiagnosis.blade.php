@@ -293,11 +293,21 @@
                     @endif
 
                     <div class="col-12">
+                        @can('post-admin')
                         <div class="text-center mt-3">
                             <a href="{{ route('admin.DataDiagnosisIndex') }}" class="btn btn-secondary mb-3">
                                 <i class="fas fa-arrow-left"></i> Kembali
                             </a>
                         </div>
+                        @endcan
+
+                        @can('post-kader')
+                        <div class="text-center mt-3">
+                            <a href="{{ route('kader.DataDiagnosisIndex') }}" class="btn btn-secondary mb-3">
+                                <i class="fas fa-arrow-left"></i> Kembali
+                            </a>
+                        </div>
+                        @endcan
                     </div>
                 </div>
             </div>

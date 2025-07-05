@@ -112,9 +112,21 @@
                                                     <td>{{ $rekap->tb }} cm</td>
                                                     <td>{{ $rekap->lingkar_kepala }} cm</td>
                                                     <td>
+                                                        @can('post-admin')
+                                                        <a href="{{ route('admin.rekap.show', $rekap->id) }}" class="btn btn-sm btn-primary">
+                                                            Detail
+                                                        </a>
+                                                        @endcan
+                                                        @can('post-kader')
+                                                        <a href="{{ route('kader.rekap.show', $rekap->id) }}" class="btn btn-sm btn-primary">
+                                                            Detail
+                                                        </a>
+                                                        @endcan
+                                                        @can('post-bidan')
                                                         <a href="{{ route('bidan.rekap.show', $rekap->id) }}" class="btn btn-sm btn-primary">
                                                             Detail
                                                         </a>
+                                                        @endcan
                                                     </td>
                                                 </tr>
                                             @endif

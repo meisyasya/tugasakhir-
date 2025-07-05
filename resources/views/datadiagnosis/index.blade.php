@@ -24,10 +24,14 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    @if(auth()->user()->can('create-post'))
+                    @if(auth()->user()->can('post-admin'))
                     <a href="{{  route('admin.DataDiagnosisCreate') }}" class="btn btn-success mb-3" >Tambah Diagnosis Stunting</a>
                     @endif
 
+                    @if(auth()->user()->can('post-kader'))
+                    <a href="{{  route('kader.DataDiagnosisCreate') }}" class="btn btn-success mb-3" >Tambah Diagnosis Stunting</a>
+                    @endif
+                    
                     @if ($errors->any())
                         <div class="alert alert-danger my-3">
                             <ul>
@@ -65,46 +69,72 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($diagnoses as $index => $diagnosis)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td>{{ $diagnosis->balita->nama }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($diagnosis->tanggal_diagnosis)->format('d-m-Y') }}</td>
-                                        <td>{{ $diagnosis->usia }} bulan</td>
-                                       
-                                        <td>{{ $diagnosis->lingkar_kepala }} bulan</td>
-                                        <td>{{ $diagnosis->bb }} cm</td>
-                                        <td>{{ $diagnosis->tb }} cm</td>
-                                        <td>{{ $diagnosis->imt }}</td>
-                                        <td>{{ $diagnosis->status_gizi }}</td>
-                                        <td>{{ $diagnosis->hasil_diagnosis }}</td>
-                                        <td>
-                                            <div class="row g-2"> {{-- g-2 adds a small gap between columns --}}
-                                                @if(auth()->user()->can('create-post'))
-                                                <div class="col-auto"> {{-- col-auto makes the column fit its content --}}
-                                                    <button class="btn btn-danger btn-sm btn-delete w-100" data-id="{{ $diagnosis->id }}">
-                                                        <i class="fas fa-trash"></i> Hapus
-                                                    </button>
-                                                    <form id="form-delete-{{ $diagnosis->id }}" action="{{ route('admin.DataDiagnosisDelete', $diagnosis->id) }}" method="POST" style="display: none;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                    </form>
+                                        <tr>
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>{{ $diagnosis->balita->nama }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($diagnosis->tanggal_diagnosis)->format('d-m-Y') }}</td>
+                                            <td>{{ $diagnosis->usia }} bulan</td>
+                                            <td>{{ $diagnosis->bb }} kg</td>
+                                            <td>{{ $diagnosis->tb }} cm</td>
+                                            <td>{{ $diagnosis->lingkar_kepala }} cm</td>
+                                            <td>{{ $diagnosis->imt }}</td>
+                                            <td>{{ $diagnosis->status_gizi }}</td>
+                                            <td>{{ $diagnosis->hasil_diagnosis }}</td>
+                                            <td>
+                                                <div class="row g-2">
+                                                    @can('post-admin')
+                                                        <div class="col-auto">
+                                                            <button class="btn btn-danger btn-sm btn-delete w-100" data-id="{{ $diagnosis->id }}">
+                                                                <i class="fas fa-trash"></i> Hapus
+                                                            </button>
+                                                            <form id="form-delete-{{ $diagnosis->id }}" action="{{ route('admin.DataDiagnosisDelete', $diagnosis->id) }}" method="POST" style="display: none;">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                            </form>
+                                                        </div>
+                                                    @endcan
+
+                                                    @can('post-kader')
+                                                        <div class="col-auto">
+                                                            <button class="btn btn-danger btn-sm btn-delete w-100" data-id="{{ $diagnosis->id }}">
+                                                                <i class="fas fa-trash"></i> Hapus
+                                                            </button>
+                                                            <form id="form-delete-{{ $diagnosis->id }}" action="{{ route('kader.DataDiagnosisDelete', $diagnosis->id) }}" method="POST" style="display: none;">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                            </form>
+                                                        </div>
+                                                    @endcan
+
+                                                  
+                                
+                                                    @can('post-admin')
+                                                    <div class="col-auto">
+                                                        <form action="{{ route('admin.DataDiagnosisAcc', $diagnosis->id) }}" method="POST" style="display:inline;">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-success btn-sm w-100">
+                                                                <i class="fas fa-check"></i> ACC
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                    @endcan
+
+                                                    @can('post-kader')
+                                                    <div class="col-auto">
+                                                        <form action="{{ route('kader.DataDiagnosisAcc', $diagnosis->id) }}" method="POST" style="display:inline;">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-success btn-sm w-100">
+                                                                <i class="fas fa-check"></i> ACC
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                    @endcan
                                                 </div>
-                                                @endif
-                                        
-                                                {{-- bidan --}}
-                                                <div class="col-auto">
-                                                    <form action="{{ route('bidan.DataDiagnosisAcc', $diagnosis->id) }}" method="POST" style="display:inline;">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-success btn-sm w-100">
-                                                            <i class="fas fa-check"></i> ACC
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                        </tr>
                                     @endforeach
                                 </tbody>
+                                
                             </table>
                         </div>
                     </div>

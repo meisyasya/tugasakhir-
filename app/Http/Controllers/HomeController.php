@@ -26,8 +26,8 @@ class HomeController extends Controller
         $jadwal = JadwalPosyandu::all();
         $categories = CategoryArticle::all();
         $articles = Article::orderBy('publish_date', 'desc')->take(5)->get();
-        $galeris = Galeri::all();
-        $galeri_categories = CategoryGaleri::all(); // Ambil semua kategori galeri
+        $categorigaleri = CategoryGaleri::orderBy('id')->get(); // Mengurutkan kategori (opsional)
+        $galeris = Galeri::with('category')->get();         // Mengambil galeri dan kategori terkait
         return view ('home.index',compact(
             'headers',
             'abouts',
@@ -36,11 +36,12 @@ class HomeController extends Controller
             'jadwal',
             'categories',
             'articles',
-           'galeris',
-           'galeri_categories'
+            'categorigaleri',
+            'galeris'
 
         ));
     }
+
     public function show($slug)
     {
     $menu = MenuMakanan::where('slug', $slug)->firstOrFail();
@@ -48,8 +49,8 @@ class HomeController extends Controller
     }
     public function showberita($slug)
     {
-    $menu = Article::where('slug', $slug)->firstOrFail();
-    return view('home.detail_berita', compact('menu'));
+    $article = Article::where('slug', $slug)->firstOrFail();
+    return view('home.detail_berita', compact('article'));
     }
 
 

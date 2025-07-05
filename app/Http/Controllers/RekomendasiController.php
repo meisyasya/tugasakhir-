@@ -37,8 +37,12 @@ class RekomendasiController extends Controller
             'rekomendasi' => $validated['rekomendasi'],
         ]);
     
-        // Redirect atau response sesuai kebutuhan
-        return redirect()->route('admin.RekomendasiIndex')->with('success', 'Rekomendasi berhasil diperbarui');
+        if (auth()->user()->hasRole('admin')) {
+            return redirect()->route('admin.RekomendasiIndex')->with('success', 'Rekomendasi berhasil diperbarui');
+        } elseif (auth()->user()->hasRole('bidan')) {
+           
+            return redirect()->route('bidan.RekomendasiIndex')->with('success', 'Rekomendasi berhasil diperbarui');
+        }
     }
     
 

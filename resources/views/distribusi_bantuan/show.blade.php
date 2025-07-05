@@ -242,12 +242,43 @@
             </div>
         </div>
 
-        <!-- Tombol Upload Laporan -->
-        <div class="d-flex justify-content-between gap-2 mb-4">
-            <a href="{{ route('admin.DistribusiBantuanCreate', ['id' => $diagnosis->id]) }}" class="btn btn-custom btn-custom-success">
-                Upload Laporan
+    
+        @can('post-admin')
+        <div class="d-flex justify-content-start gap-2 mb-4">
+    
+            {{-- Tombol Upload Laporan --}}
+            <a href="{{ route('admin.DistribusiBantuanCreate', ['id' => $diagnosis->id]) }}" class="btn btn-success d-flex align-items-center">
+                <i class="fas fa-upload me-2"></i>
+                <span>Upload Laporan</span>
             </a>
+    
+            {{-- Tombol Cetak Laporan --}}
+            <a href="{{ route('admin.cetakLaporan', ['id' => $diagnosis->id]) }}" class="btn btn-secondary d-flex align-items-center">
+                <i class="fas fa-print me-2"></i>
+                <span>Cetak Laporan</span>
+            </a>
+    
         </div>
+    @endcan
+    
+
+        @can('post-kader')
+        <div class="d-flex justify-content-start gap-2 mb-4">
+    
+            {{-- Tombol Upload Laporan --}}
+            <a href="{{ route('kader.DistribusiBantuanCreate', ['id' => $diagnosis->id]) }}" class="btn btn-success d-flex align-items-center">
+                <i class="fas fa-upload me-2"></i>
+                <span>Upload Laporan</span>
+            </a>
+    
+            {{-- Tombol Cetak Laporan --}}
+            <a href="{{ route('kader.cetakLaporan', ['id' => $diagnosis->id]) }}" class="btn btn-secondary d-flex align-items-center">
+                <i class="fas fa-print me-2"></i>
+                <span>Cetak Laporan</span>
+            </a>
+    
+        </div>
+        @endcan
 
         <!-- Daftar Distribusi Bantuan -->
         <div class="card card-custom">
@@ -261,7 +292,9 @@
                             <th>Foto Bukti</th>
                             <th>Keterangan</th>
                             <th>Nama Kader</th>
+                            @cannot('post-pemdes')
                             <th>Aksi</th>
+                            @endcannot
                         </tr>
                     </thead>
                     <tbody>
@@ -275,6 +308,8 @@
                                 <td>{{ $bantuan->keterangan }}</td>
                                 <td>{{ Auth::user()->name }}</td>
                                 <td>
+
+                                    @can('post-admin')
                                     <!-- Form Hapus dengan Modal -->
                                     <form action="{{ route('admin.DistribusiBantuanDelete', ['distribusi_bantuan' => $bantuan->id]) }}" method="POST" style="display: inline-block;">
                                         @csrf
@@ -282,8 +317,9 @@
 
                                         <!-- Tombol buka modal -->
                                         <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#hapusModal{{ $bantuan->id }}">
-                                            <i class="bi bi-trash"></i> Hapus
+                                            <i class="fas fa-trash me-1"></i> Hapus
                                         </button>
+                                        
 
                                         <!-- Modal konfirmasi hapus -->
                                         <div class="modal fade" id="hapusModal{{ $bantuan->id }}" tabindex="-1" aria-labelledby="hapusModalLabel{{ $bantuan->id }}" aria-hidden="true">
@@ -299,7 +335,7 @@
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                                                         <button type="submit" class="btn btn-danger">
-                                                            <i class="bi bi-trash"></i> Hapus
+                                                            <i class="bi bi-trash"></i>Hapus
                                                         </button>
                                                     </div>
                                                 </div>
@@ -308,7 +344,51 @@
                                     </form>
 
                                     <!-- Tombol Edit -->
-                                    <a href="{{ route('admin.DistribusiBantuanEdit', $bantuan->id) }}" class="btn btn-sm btn-warning ms-1">Edit</a>
+                                    <a href="{{ route('admin.DistribusiBantuanEdit', $bantuan->id) }}" class="btn btn-sm btn-warning ms-1">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </a>
+                                    @endcan
+
+                                    @can('post-kader')
+                                
+                                    <!-- Form Hapus dengan Modal -->
+                                    <form action="{{ route('kader.DistribusiBantuanDelete', ['distribusi_bantuan' => $bantuan->id]) }}" method="POST" style="display: inline-block;">
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <!-- Tombol buka modal -->
+                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#hapusModal{{ $bantuan->id }}">
+                                            <i class="fas fa-trash me-1"></i> Hapus
+                                        </button>
+                                        
+
+                                        <!-- Modal konfirmasi hapus -->
+                                        <div class="modal fade" id="hapusModal{{ $bantuan->id }}" tabindex="-1" aria-labelledby="hapusModalLabel{{ $bantuan->id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="hapusModalLabel{{ $bantuan->id }}">Konfirmasi Penghapusan</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Apakah Anda yakin ingin menghapus data ini?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                        <button type="submit" class="btn btn-danger">
+                                                            <i class="bi bi-trash"></i>Hapus
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+
+                                    <!-- Tombol Edit -->
+                                    <a href="{{ route('kader.DistribusiBantuanEdit', $bantuan->id) }}" class="btn btn-sm btn-warning ms-1">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </a>
+                                    @endcan
                                 </td>
                             </tr>
                         @endforeach
@@ -317,12 +397,20 @@
             </div>
         </div>
 
-        <!-- Tombol Kembali -->
+        @can('post-admin')
         <div class="d-flex justify-content-end mt-4">
-            <a href="{{ route('admin.DistribusiBantuanIndex') }}" class="btn btn-custom btn-custom-back">
-                <i class="bi bi-arrow-left"></i> Kembali
+            <a href="{{ route('admin.DistribusiBantuanIndex') }}" class="btn btn-custom btn-custom-back btn-sm">
+                <i class="fas fa-arrow-left me-1"></i> Kembali
             </a>
-        </div>
+        </div>        
+        @endcan
+        @can('post-kader')
+        <div class="d-flex justify-content-end mt-4">
+            <a href="{{ route('kader.DistribusiBantuanIndex') }}" class="btn btn-custom btn-custom-back btn-sm">
+                <i class="fas fa-arrow-left me-1"></i> Kembali
+            </a>
+        </div>  
+        @endcan
     </div>
 </div>
 @endsection

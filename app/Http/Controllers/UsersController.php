@@ -103,30 +103,48 @@ public function store(Request $request)
      * Update the specified resource in storage.
      */
    // UPDATE
+// UPDATE
 public function update(Request $request, $id)
 {
     $user = User::findOrFail($id);
 
-    $validatedData = $request->validate([
+    $rules = [
         'name'  => 'required|string|max:255',
         'nik'   => 'required|digits:16|unique:users,nik,' . $id,
         'email' => 'required|email|unique:users,email,' . $id,
         'phone' => 'required|string|max:15',
         'role'  => 'required|string',
         'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-    ]);
+    ];
 
+    // Tambahkan validasi password hanya jika password diisi
+    if ($request->filled('password')) {
+        $rules['password'] = 'nullable|min:8|confirmed'; // 'confirmed' berarti ada bidang password_confirmation
+    }
+
+    $validatedData = $request->validate($rules);
+
+    // Hapus foto lama jika ada dan unggah yang baru
     if ($request->hasFile('photo')) {
         if ($user->photo && \Storage::disk('public')->exists($user->photo)) {
             \Storage::disk('public')->delete($user->photo);
         }
-
         $photoPath = $request->file('photo')->store('photos', 'public');
         $validatedData['photo'] = $photoPath;
     }
 
+    // Hash password jika ada di request
+    if (isset($validatedData['password'])) {
+        $validatedData['password'] = bcrypt($validatedData['password']);
+    } else {
+        // Penting: Hapus password dari validatedData jika tidak diisi,
+        // agar tidak mencoba mengupdate password menjadi null
+        unset($validatedData['password']);
+    }
+
     $user->update($validatedData);
 
+    // Perbarui peran pengguna
     $user->roles->isNotEmpty()
         ? $user->syncRoles([$validatedData['role']])
         : $user->assignRole($validatedData['role']);

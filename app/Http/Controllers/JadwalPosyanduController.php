@@ -27,7 +27,13 @@ class JadwalPosyanduController extends Controller
         $jadwal = JadwalPosyandu::findOrFail($id);
         $jadwal->update($request->all());
 
-        return redirect()->route('admin.jadwalposyandu')->with('success', 'Jadwal berhasil diperbarui.');
+        if (auth()->user()->hasRole('admin')) {
+            return redirect()->route('admin.jadwalposyandu')->with('success', 'Jadwal berhasil diperbarui oleh Admin.');
+        } elseif (auth()->user()->hasRole('kader')) {
+           
+            return redirect()->route('kader.jadwalposyandu')->with('success', 'Jadwal  berhasil diperbarui oleh Kader.');
+        }
+
     }
 
 }

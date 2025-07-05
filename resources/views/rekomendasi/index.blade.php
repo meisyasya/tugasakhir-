@@ -2,7 +2,6 @@
 
 @push('css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
 @endpush
 
 @section('title', 'Data Rekomendasi')
@@ -38,7 +37,7 @@
                     <h3 class="card-title">Tabel Rekomendasi</h3>
                 </div>
                 <div class="card-body">
-                    <table class="table table-hover table-bordered" id="rekomendasiTable">
+                    <table class="table table-hover table-bordered">
                         <thead class="table-primary">
                             <tr>
                                 <th>No</th>
@@ -53,12 +52,20 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $item->jenis_stunting }}</td>
                                     <td>{!! $item->rekomendasi !!}</td>
+                                    @can('post-admin')
                                     <td class="text-center">
-                                        <!-- Ganti tombol update agar menuju halaman update -->
                                         <a href="{{ route('admin.RekomendasiEdit', $item->id) }}" class="btn btn-warning btn-sm">
                                             <i class="fas fa-pen"></i> Update
                                         </a>
                                     </td>
+                                    @endcan
+                                    @can('post-bidan')
+                                    <td class="text-center">
+                                        <a href="{{ route('bidan.RekomendasiEdit', $item->id) }}" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-pen"></i> Update
+                                        </a>
+                                    </td>
+                                    @endcan
                                 </tr>
                             @endforeach
                         </tbody>
@@ -72,16 +79,9 @@
 @endsection
 
 @push('js')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        $(document).ready(function () {
-            $('#rekomendasiTable').DataTable();
-        });
-
         @if(session('success'))
             Swal.fire({
                 icon: 'success',

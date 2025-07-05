@@ -98,6 +98,20 @@
         /* Pastikan warna ikon default juga putih jika tidak aktif */
         color: white; /* Default icon color for all nav-links */
     }
+    /* Custom CSS untuk garis pemisah penuh di sidebar */
+.sidebar-divider-full {
+    height: 1px; /* Ketebalan garis */
+    background-color: black; /* Warna hitam solid */
+    margin: 10px 0; /* Jarak atas dan bawah */
+    /* Properti penting untuk membuatnya memanjang penuh */
+    margin-left: -20px; /* Offset padding kiri default nav-link (biasanya 20px) */
+    margin-right: -20px; /* Offset padding kanan default nav-link (biasanya 20px) */
+    /* Jika sidebar AdminLTE menggunakan padding yang berbeda, sesuaikan -20px ini */
+    width: calc(100% + 40px); /* 100% lebar ditambah offset dari margin kiri/kanan */
+    /* Atau, jika ingin lebih sederhana dan mungkin bekerja: */
+    /* width: 100%; */
+    /* padding: 0; */
+}
     
     /* Icon di dalam active link */
     .main-sidebar .nav-link.active .nav-icon {
@@ -278,7 +292,7 @@
 </li> 
 
 <li class="nav-item">
-  <a href="{{ route('admin.pertumbuhananak') }}" class="nav-link {{ request()->routeIs('admin.pertumbuhananak') ? 'active' : '' }}">
+  <a href="{{ route('admin.pertumbuhananak') }}" class="nav-link {{ request()->routeIs('admin.pertumbuhananak', 'admin.rekap.tb_usia','rekap.bb_usia') ? 'active' : '' }}">
     <i class="nav-icon fas fa-clipboard-list"></i>
     <p>Pertumbuhan Anak</p>
   </a>
@@ -299,48 +313,62 @@
 
     @if (auth()->user()->hasRole('bidan'))
       <li class="nav-item">
-          <a href="{{ route('bidan.dashboard') }}" class="nav-link">
+          <a href="{{ route('bidan.dashboard') }}" class="nav-link {{ request()->routeIs('bidan.dashboard') ? 'active' : '' }}">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>Dashboard</p>
           </a>
       </li>
 
       <li class="nav-item">
-          <a href="{{ route('bidan.UsersIndex') }}" class="nav-link">
-              <i class="nav-icon fas fa-user-plus"></i> 
+          <a href="{{ route('bidan.UsersIndex') }}" class="nav-link {{ request()->routeIs('bidan.UsersIndex') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-user"></i> 
               <p>
-                  Pengguna
+                  Profile
               </p>
           </a>
       </li>
 
       <li class="nav-item">
-         <a href="{{ route('bidan.DataAnakIndex') }}" class="nav-link">
+        <a href="{{ route('bidan.RekomendasiIndex') }}" class="nav-link {{ request()->routeIs('admin.RekomendasiIndex') ? 'active' : '' }}">
+          <i class="nav-icon fas fa-hand-holding-medical"></i>  
+          <p>Rekomendasi</p>
+        </a>
+      </li>
+
+
+      <li class="nav-item">
+         <a href="{{ route('bidan.DataAnakIndex') }}" class="nav-link {{ request()->routeIs('bidan.DataAnakIndex') ? 'active' : '' }}">
            <i class="nav-icon fas fa-child"></i>  
            <p>
              Data Balita 
            </p>
          </a>
       </li>
-
       <li class="nav-item">
-        <a href="{{ route('bidan.DataDiagnosisIndex') }}" class="nav-link">
-            <i class="nav-icon fas fa-stethoscope"></i>
+        <a href="{{ route('bidan.pertumbuhananak') }}" class="nav-link {{ request()->routeIs('bidan.pertumbuhananak') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-clipboard-list"></i>
             <p>
-                Diagnosis Stunting
+                Pertumbuhan Anak
             </p>
         </a>
-    </li> 
+    </li>
+
     <li class="nav-item">
-      <a href="{{ route('bidan.rekapBulananIndex') }}" class="nav-link">
+      <div class="sidebar-divider-full"></div> 
+  </li>
+
+    
+    <li class="nav-item">
+      <a href="{{ route('bidan.rekapBulananIndex') }}" class="nav-link {{ request()->routeIs('bidan.rekapBulananIndex') ? 'active' : '' }}">
           <i class="nav-icon fas fa-file-medical-alt"></i>
           <p>
               Rekap Bulanan
           </p>
       </a>
   </li> 
-  <li class="nav-item">
-    <a href="{{ route('bidan.RekapStuntingIndex') }}" class="nav-link">
+
+<li class="nav-item">
+    <a href="{{ route('bidan.RekapStuntingIndex') }}" class="nav-link {{ request()->routeIs('bidan.RekapStuntingIndex') ? 'active' : '' }}">
         <i class="nav-icon fas fa-user-injured"></i>
         <p>
             Rekap Stunting
@@ -349,13 +377,18 @@
 </li> 
 
 <li class="nav-item">
-  <a href="{{ route('admin.DistribusiBantuanIndex') }}" class="nav-link">
+  <a href="{{ route('bidan.DistribusiBantuanIndex') }}" class="nav-link {{ request()->routeIs('bidan.DistribusiBantuanIndex','bidan.DistribusiBantuanEdit') ? 'active' : '' }}">
       <i class="nav-icon fas fa-truck"></i>
       <p>
           Distribusi Bantuan
       </p>
   </a>
 </li>
+
+<li class="nav-item">
+  <div class="sidebar-divider-full"></div> 
+</li>
+
 
 
     
@@ -369,53 +402,89 @@
   
   @if (auth()->user()->hasRole('kader'))
      <li class="nav-item">
-         <a href="{{ route('kader.dashboard') }}" class="nav-link">
+         <a href="{{ route('kader.dashboard') }}" class="nav-link {{ request()->routeIs('kader.dashboard') ? 'active' : '' }}">
              <i class="nav-icon fas fa-tachometer-alt"></i>
              <p>Dashboard</p>
          </a>
       </li>
 
       <li class="nav-item">
-        <a href="{{ route('bidan.UsersIndex') }}" class="nav-link">
-            <i class="nav-icon fas fa-user-plus"></i> 
+        <a href="{{ route('kader.UsersIndex') }}" class="nav-link {{ request()->routeIs('kader.UsersIndex') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user"></i> 
             <p>
-                Pengguna
+                Profile
             </p>
         </a>
       </li>
 
       <li class="nav-item">
-      <a href="{{ route('admin.jadwalposyandu') }}" class="nav-link {{ request()->routeIs('admin.jadwalposyandu') ? 'active' : '' }}">
+      <a href="{{ route('kader.jadwalposyandu') }}" class="nav-link {{ request()->routeIs('kader.jadwalposyandu') ? 'active' : '' }}">
           <i class="nav-icon far fa-calendar-alt"></i>
           <p>Jadwal Posyandu</p>
       </a>
      </li>
 
      <li class="nav-item">
-        <a href="{{ route('kader.DataAnakIndex') }}" class="nav-link">
+        <a href="{{ route('kader.DataAnakIndex') }}" class="nav-link {{ request()->routeIs('kader.DataAnakIndex') ? 'active' : '' }}">
           <i class="nav-icon fas fa-child"></i>  
           <p>
             Data Balita 
           </p>
         </a>
     </li>
+    
+    <li class="nav-item">
+      <div class="sidebar-divider-full"></div> 
+  </li>
 
     <li class="nav-item">
-        <a href="{{ route('admin.DistribusiBantuanIndex') }}" class="nav-link">
+      <a href="{{ route('kader.DataDiagnosisIndex') }}" class="nav-link {{ request()->routeIs('kader.DataDiagnosisIndex') ? 'active' : '' }}">
+        <i class="nav-icon fas fa-stethoscope"></i>
+        <p>Diagnosis Stunting</p>
+      </a>
+    </li> 
+
+    <li class="nav-item">
+      <a href="{{ route('kader.rekapBulananIndex') }}" class="nav-link {{ request()->routeIs('kader.rekapBulananIndex') ? 'active' : '' }}">
+        <i class="nav-icon fas fa-file-medical-alt"></i>
+        <p>Rekap Bulanan</p>
+      </a>
+    </li> 
+    
+    <li class="nav-item">
+        <a href="{{ route('kader.DistribusiBantuanIndex') }}" class="nav-link {{ request()->routeIs('kader.DistribusiBantuanIndex') ? 'active' : '' }}">
             <i class="nav-icon fas fa-truck"></i>
             <p>
                 Distribusi Bantuan
             </p>
         </a>
     </li>
+
+
+    <li class="nav-item">
+      <div class="sidebar-divider-full"></div> 
+  </li>
     @endif
         
 
         
         @if (auth()->user()->hasRole('ortu') )
-        
+        <li class="nav-item">
+          <a href="{{ route('ortu.dashboard') }}" class="nav-link {{ request()->routeIs('ortu.dashboard') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>Dashboard</p>
+          </a>
+      </li>  
+      <li class="nav-item">
+        <a href="{{ route('ortu.UsersIndex') }}" class="nav-link {{ request()->routeIs('ortu.UsersIndex') ? 'active' : '' }}" >
+            <i class="nav-icon fas fa-user"></i> 
+            <p>
+                Profile
+            </p>
+        </a>
+    </li>
          <li class="nav-item">
-          <a href="{{ route('ortu.DataAnakIndex') }}" class="nav-link">
+          <a href="{{ route('ortu.DataAnakIndex') }}" class="nav-link {{ request()->routeIs('ortu.DataAnakIndex') ? 'active' : '' }}">
             <i class="nav-icon fas fa-child"></i>
             <p>
               Data Balita Saya
@@ -424,7 +493,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="{{ route('ortu.pertumbuhananak') }}" class="nav-link">
+          <a href="{{ route('ortu.pertumbuhananak') }}" class="nav-link {{ request()->routeIs('ortu.pertumbuhananak') ? 'active' : '' }}">
               <i class="nav-icon fas fa-clipboard-list"></i>
               <p>
                   Pertumbuhan Anak
@@ -433,6 +502,42 @@
       </li>
   
         @endif
+
+
+      @if (auth()->user()->hasRole('pemdes'))
+      <li class="nav-item">
+          <a href="{{ route('pemdes.dashboard') }}" class="nav-link {{ request()->routeIs('pemdes.dashboard') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>Dashboard</p>
+          </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ route('pemdes.UsersIndex') }}" class="nav-link {{ request()->routeIs('pemdes.UsersIndex') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user"></i> 
+            <p>
+                Profile
+            </p>
+        </a>
+    </li>
+
+      <li class="nav-item">
+        <a href="{{ route('pemdes.RekapStuntingIndex') }}" class="nav-link {{ request()->routeIs('pemdes.RekapStuntingIndex') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user-injured"></i>
+            <p>
+                Rekap Stunting
+            </p>
+        </a>
+    </li> 
+    
+    <li class="nav-item">
+      <a href="{{ route('pemdes.DistribusiBantuanIndex') }}" class="nav-link {{ request()->routeIs('pemdes.DistribusiBantuanIndex') ? 'active' : '' }}">
+          <i class="nav-icon fas fa-truck"></i>
+          <p>
+              Distribusi Bantuan
+          </p>
+      </a>
+    </li>
+    @endif
         
 
         
@@ -453,72 +558,74 @@
           {{-- Landing Page --}}
           @if (auth()->user()->hasRole('admin'))
           <li class="nav-item">
+            <div class="sidebar-divider-full"></div> 
+        </li>
+        
+        <li class="nav-item ">
             <a href="" class="nav-link">
-              <i class="nav-icon fas fa-edit"></i>
-              <span class="badge badge-info right">7</span>
-              <p>
-                Landing Page
-                <i class="fas fa-angle-left right"></i>
-              </p>
+                <i class="nav-icon fas fa-edit"></i>
+                <span class="badge badge-info right">7</span>
+                <p>
+                    Landing Page
+                    <i class="fas fa-angle-left right"></i>
+                </p>
             </a>
-
+            
             <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{{ route('admin.header') }}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Header</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ route('admin.about') }}" class="nav-link">
-                  <i   class="far fa-circle nav-icon"></i>
-                  <p>Tentang</p>
-                </a>
-              </li>
-           
-              <li class="nav-item">
-                <a href="{{ route('admin.CategoriMakananIndex') }}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Menu Makanan</p>
-                </a>
-              </li>
-              <li class="nav-item">
-               
-                <a href="{{ route('admin.CategoryArticleIndex') }}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Kategori Artikel</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href=" {{ route('admin.ArticleIndex') }}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Artikel</p>
-                </a>
-              </li>
-
-              <li class="nav-item">
-                <a href=" {{ route('admin.CategoryGaleriIndex') }}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Galeri</p>
-                </a>
-              </li>
-              
-              <li class="nav-item">
-                <a href="{{ route('admin.contact') }}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Contact</p>
-                </a>
-              </li>
-
-              <li class="nav-item">
-                <a href="{{ route('admin.SosmedIndex') }}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Sosial Media</p>
-                </a>
-              </li>
-
+                <li class="nav-item">
+                    <a href="{{ route('admin.header') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Header</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.about') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Tentang</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.CategoriMakananIndex') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Menu Makanan</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.CategoryArticleIndex') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Kategori Artikel</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href=" {{ route('admin.ArticleIndex') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Artikel</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href=" {{ route('admin.CategoryGaleriIndex') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Galeri</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.contact') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Contact</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.SosmedIndex') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Sosial Media</p>
+                    </a>
+                </li>
             </ul>
-          </li>
+        </li>
+
+        <li class="nav-item">
+          <div class="sidebar-divider-full"></div> 
+      </li>
 
           @endif
 
@@ -558,7 +665,7 @@
  @yield('content')
   <!-- /.content-wrapper -->
   <footer class="main-footer">
-    <strong>Copyright &copy; {{ date('Y') }} <a href="https://adminlte.io">  by PT Cazh Teknologi Inovasi</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="https://adminlte.io">by simesti</a></strong>
 
     {{-- <div class="float-right d-none d-sm-inline-block">
       <b>Version</b> 3.2.0

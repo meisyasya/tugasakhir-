@@ -91,9 +91,18 @@
                             <p class="card-text"><i class="bi bi-calendar-event"></i> {{ \Carbon\Carbon::parse($item->tanggal)->translatedFormat('d F Y') }}</p>
                             <p class="card-text"><i class="bi bi-geo-alt"></i> {{ $item->lokasi }}</p>
                             
+                            @can('post-admin')
                             <a href="{{ route('admin.jadwalposyanduedit', $item->id) }}" class="btn btn-sm btn-outline-primary mt-3">
                                 <i class="bi bi-pencil-square"></i> Edit
                             </a>
+                            @endcan
+
+                            @can('post-kader')
+                            <a href="{{ route('kader.jadwalposyanduedit', $item->id) }}" class="btn btn-sm btn-outline-primary mt-3">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                            @endcan
+
                         </div>
                     </div>
                 </div>

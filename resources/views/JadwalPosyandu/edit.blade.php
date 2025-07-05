@@ -21,6 +21,34 @@
                         </div>
                     @endif
 
+                    @can('post-kader')
+                    <form action="{{ route('kader.jadwalposyanduupdate', $jadwal->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="mb-3">
+                            <label for="nama" class="form-label">Nama Posyandu</label>
+                            <input type="text" class="form-control" id="nama" name="nama" value="{{ old('nama', $jadwal->nama) }}" >
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="tanggal" class="form-label">Tanggal</label>
+                            <input type="date" class="form-control" id="tanggal" name="tanggal" value="{{ old('tanggal', \Carbon\Carbon::parse($jadwal->tanggal)->format('Y-m-d')) }}" >
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="lokasi" class="form-label">Lokasi</label>
+                            <input type="text" class="form-control" id="lokasi" name="lokasi" value="{{ old('lokasi', $jadwal->lokasi) }}"  readonly>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Simpan Perubahan
+                        </button>
+                        <a href="{{ route('admin.jadwalposyandu') }}" class="btn btn-secondary ms-2">Batal</a>
+                    </form>
+                    @endcan
+
+                    @can('post-admin')
                     <form action="{{ route('admin.jadwalposyanduupdate', $jadwal->id) }}" method="POST">
                         @csrf
                         @method('PUT')
@@ -37,7 +65,7 @@
 
                         <div class="mb-3">
                             <label for="lokasi" class="form-label">Lokasi</label>
-                            <input type="text" class="form-control" id="lokasi" name="lokasi" value="{{ old('lokasi', $jadwal->lokasi) }}" >
+                            <input type="text" class="form-control" id="lokasi" name="lokasi" value="{{ old('lokasi', $jadwal->lokasi) }}" readonly                  >
                         </div>
 
                         <button type="submit" class="btn btn-primary">
@@ -45,6 +73,7 @@
                         </button>
                         <a href="{{ route('admin.jadwalposyandu') }}" class="btn btn-secondary ms-2">Batal</a>
                     </form>
+                    @endcan
                 </div>
             </div>
         </div>

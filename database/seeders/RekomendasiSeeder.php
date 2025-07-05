@@ -23,7 +23,7 @@ class RekomendasiSeeder extends Seeder
                 'rekomendasi' => 'Segera konsultasikan ke fasilitas kesehatan dan berikan intervensi gizi darurat.'
             ],
             [
-                'jenis_stunting' => 'Stunting Tidak Stunting',
+                'jenis_stunting' => 'Tidak Stunting',
                 'rekomendasi' => 'Perbaiki pola makan dan kebersihan lingkungan, serta pantau perkembangan anak secara intensif.'
             ],
         ];

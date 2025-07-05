@@ -9,6 +9,9 @@ use App\Models\Diagnosis;
 use App\Models\RekapStunting;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 
 
@@ -94,9 +97,16 @@ public function show($id)
             'user_id' => Auth::id(),
         ]);
     
-        return redirect()
+        if (auth()->user()->hasRole('admin')) {
+            return redirect()
             ->route('admin.DistribusiBantuanShow', ['distribusi_bantuan' => $rekap->id])
+            ->with('success', 'Distribusi bantuan berhasil ditambahkan.');   
+         } elseif (auth()->user()->hasRole('kader')) {
+            return redirect()
+            ->route('kader.DistribusiBantuanShow', ['distribusi_bantuan' => $rekap->id])
             ->with('success', 'Distribusi bantuan berhasil ditambahkan.');
+    
+        }
     }
     
 
@@ -133,9 +143,13 @@ public function show($id)
     $distribusi->keterangan = $request->keterangan;
     $distribusi->save();
 
-    // Ambil rekap_stunting_id dari distribusi, untuk redirect
-    return redirect()->route('admin.DistribusiBantuanShow', ['distribusi_bantuan' => $distribusi->rekap_stunting_id])
+    if (auth()->user()->hasRole('admin')) {
+        return redirect()->route('admin.DistribusiBantuanShow', ['distribusi_bantuan' => $distribusi->rekap_stunting_id])
         ->with('success', 'Data distribusi bantuan berhasil diperbarui.');
+     } elseif (auth()->user()->hasRole('kader')) {
+        return redirect()->route('kader.DistribusiBantuanShow', ['distribusi_bantuan' => $distribusi->rekap_stunting_id])
+        ->with('success', 'Data distribusi bantuan berhasil diperbarui.');
+    }    
 }
 
 
@@ -159,11 +173,109 @@ public function show($id)
         // Hapus data distribusi bantuan
         $bantuan->delete();
     
+        if (auth()->user()->hasRole('admin')) {
+            return redirect()->route('admin.DistribusiBantuanShow', ['distribusi_bantuan' => $rekapStuntingId])
+                         ->with('success', 'Data distribusi bantuan berhasil dihapus.');  
+         } elseif (auth()->user()->hasRole('kader')) {
+            return redirect()->route('kader.DistribusiBantuanShow', ['distribusi_bantuan' => $rekapStuntingId])
+            ->with('success', 'Data distribusi bantuan berhasil dihapus.');  
+    
+        }
         // Redirect ke halaman show dengan parameter rekap_stunting_id yang benar
-        return redirect()->route('admin.DistribusiBantuanShow', ['distribusi_bantuan' => $rekapStuntingId])
-                         ->with('success', 'Data distribusi bantuan berhasil dihapus.');
+       
     }
     
+
+    public function cetakLaporan($id)
+    {
+        Carbon::setLocale('id'); // Set locale Carbon ke Bahasa Indonesia
+
+        // --- LANGKAH DEBUGGING 1: Pastikan RekapStunting ditemukan ---
+        try {
+            $diagnosis = RekapStunting::with('balita')->findOrFail($id);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Jika RekapStunting tidak ditemukan, redirect atau tampilkan error
+            return redirect()->back()->with('error', 'Data rekap stunting tidak ditemukan untuk ID ini.');
+        }
+
+        // --- LANGKAH DEBUGGING 2: Pastikan data balita ada di relasi ---
+        if (!$diagnosis->balita) {
+            return redirect()->back()->with('error', 'Data balita tidak terkait dengan rekap stunting ini.');
+        }
+
+        // 2. Ambil semua data Distribusi Bantuan yang terkait dengan Rekap Stunting ini
+        $distribusiBantuan = DistribusiBantuan::with('user') // Memuat relasi user (kader)
+            ->where('rekap_stunting_id', $id)
+            ->latest('tanggal_distribusi') // Urutkan dari yang terbaru
+            ->get();
+
+        // --- LANGKAH DEBUGGING 3: Periksa isi data sebelum dikirim ke view ---
+        // Uncomment baris di bawah ini untuk melihat data di browser sebelum PDF dibuat
+        /*
+        $debugData = (object) [
+            'balita' => (object) [
+                'nama' => $diagnosis->balita->nama ?? 'N/A',
+                'nik' => $diagnosis->balita->nik ?? 'N/A',
+                'tanggal_lahir' => $diagnosis->balita->tanggal_lahir ?? 'N/A',
+                'jenis_kelamin' => $diagnosis->balita->jenis_kelamin ?? 'N/A',
+                'nama_ibu' => $diagnosis->balita->nama_ibu ?? 'N/A',
+                'alamat' => $diagnosis->balita->alamat ?? 'N/A',
+            ],
+            'diagnosis' => (object) [
+                'tanggal_diagnosis' => $diagnosis->tanggal ?? 'N/A',
+                'usia' => $diagnosis->usia ?? 'N/A',
+                'berat_badan' => ($diagnosis->berat_badan ?? 'N/A') . ' Kg',
+                'tinggi_badan' => ($diagnosis->tinggi_badan ?? 'N/A') . ' cm',
+                'imt' => $diagnosis->imt ?? 'N/A',
+                'status_gizi' => $diagnosis->status_gizi ?? 'N/A',
+                'status_stunting' => $diagnosis->status_stunting ?? 'N/A',
+            ],
+            'distribusipmt' => $distribusiBantuan->map(function ($item) {
+                return (object) [
+                    'tanggal_distribusi' => $item->tanggal_distribusi,
+                    'foto_bukti' => $item->foto_bukti,
+                    'keterangan' => $item->keterangan,
+                    'nama_kader' => $item->user->name ?? 'N/A',
+                ];
+            })->toArray(),
+        ];
+        dd($debugData); // Ini akan menghentikan eksekusi dan menampilkan data
+        */
+        // --- AKHIR LANGKAH DEBUGGING 3 ---
+
+
+        // 3. Siapkan data dalam format yang diharapkan oleh blade PDF
+        $laporanData = (object) [
+            'balita' => (object) [
+                'nama' => $diagnosis->balita->nama,
+                'nik' => $diagnosis->balita->nik,
+                'tanggal_lahir' => $diagnosis->balita->tanggal_lahir,
+                'jenis_kelamin' => $diagnosis->balita->jenis_kelamin,
+                'nama_ibu' => $diagnosis->balita->nama_ibu,
+                'alamat_lengkap' => $diagnosis->balita->alamat_lengkap,
+            ],
+            
+            'distribusipmt' => $distribusiBantuan->map(function ($item) {
+                return (object) [
+                    'tanggal_distribusi' => $item->tanggal_distribusi,
+                    'foto_bukti' => $item->foto_bukti,
+                    'keterangan' => $item->keterangan,
+                    'nama_kader' => $item->user->name ?? 'N/A',
+                ];
+            })->toArray(),
+        ];
+        
+        // 4. Load view untuk template PDF
+        // PASTIKAN PATH VIEW INI SESUAI DENGAN LOKASI FILE laporan_pdf.blade.php ANDA
+        // Jika file ada di 'resources/views/distribusi_bantuan/laporan_pdf.blade.php', gunakan 'distribusi_bantuan.laporan_pdf'
+        // Jika file ada di 'resources/views/admin/distribusi_bantuan/laporan_pdf.blade.php', gunakan 'admin.distribusi_bantuan.laporan_pdf'
+        $pdf = PDF::loadView('distribusi_bantuan.laporan_pdf', compact('laporanData'))
+          ->setPaper('a4', 'portrait'); // portrait = vertikal, bisa diganti jadi 'landscape' kalau horizontal
+
+
+        // 5. Konfigurasi dan Kembalikan PDF untuk PREVIEW di browser
+        return $pdf->stream('laporan_pmt_stunting_' . $diagnosis->balita->nama . '_' . $diagnosis->id . '.pdf');
+    }
     
     
 

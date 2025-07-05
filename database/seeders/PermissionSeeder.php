@@ -23,11 +23,17 @@ class PermissionSeeder extends Seeder
 
         // Membuat permissions
         $permissions = [
-            'create-post',
-            'edit-post',
-            'delete-post',
-            'view-post',
+            'post-admin',
             'manage-users',
+
+            'post-bidan',
+        
+            'post-kader',
+
+            'post-pemdes',
+
+            'post-ortu',
+            
         ];
 
         // Menambahkan permissions
@@ -37,13 +43,11 @@ class PermissionSeeder extends Seeder
 
         // Memberikan permission pada roles
         // Admin diberi semua permissions
-        $role_admin->givePermissionTo(['view-post', 'edit-post' , 'delete-post', 'create-post']);
-
-        // Menentukan permissions khusus untuk role tertentu
-        $role_bidan->givePermissionTo(['view-post',]); // Misalnya, bidan hanya bisa melihat dan membuat post
-        $role_kader->givePermissionTo(['view-post', 'edit-post' , 'delete-post', 'create-post']); // Kader hanya bisa melihat
-        $role_pemdes->givePermissionTo(['manage-users']); // Pemerintah bisa mengelola pengguna
-        $role_ortu->givePermissionTo(['view-post']); // Orang tua hanya bisa melihat
+        $role_admin->givePermissionTo(['post-admin','manage-users']);
+        $role_bidan->givePermissionTo(['post-bidan']); // Misalnya, bidan hanya bisa melihat dan membuat post
+        $role_kader->givePermissionTo(['post-kader']); // Kader hanya bisa melihat
+        $role_pemdes->givePermissionTo(['post-pemdes']); // Pemerintah bisa mengelola pengguna
+        $role_ortu->givePermissionTo(['post-ortu']); // Orang tua hanya bisa melihat
 
         // Mengambil user berdasarkan ID dan assign role
         $user = User::find(1); // Admin

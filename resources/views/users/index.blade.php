@@ -125,12 +125,12 @@
                         <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalUpdate{{ $item->id }}">
                             <i class="fas fa-pen"></i> Edit
                         </a>
-                       
-                        @if (!$item->hasRole('admin'))
-                                    <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalDelete{{ $item->id }}">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </a>
-                                @endif
+                               
+                        @if (auth()->user()->can('manage-users') && !$item->hasRole('admin') && auth()->user()->id != $item->id)
+                            <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalDelete{{ $item->id }}">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        @endif
 
 
                     

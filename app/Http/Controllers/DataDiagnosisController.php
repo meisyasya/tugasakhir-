@@ -9,6 +9,7 @@ use App\Models\RekapStunting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 use App\Services\BalitaGrowthService; 
 
 
@@ -33,7 +34,11 @@ class DataDiagnosisController extends Controller
     {
         $diagnosis = Diagnosis::findOrFail($id);
         $diagnosis->delete();
-        return redirect()->route('admin.DataDiagnosisIndex')->with('success', 'Data diagnosis berhasil dihapus.');
+        if (auth()->user()->hasRole('admin')) {
+            return redirect()->route('admin.DataDiagnosisIndex')->with('success', 'Data diagnosis berhasil dihapus.');
+        } elseif (auth()->user()->hasRole('kader')) {
+            return redirect()->route('kader.DataDiagnosisIndex')->with('success', 'Data diagnosis berhasil dihapus.');
+        }
     }
 
     public function create()
@@ -54,7 +59,9 @@ class DataDiagnosisController extends Controller
         ]);
 
         $balita = Balita::findOrFail($request->nama);
-        $usia = now()->diffInMonths($balita->tanggal_lahir);
+        // $usia = now()->diffInMonths($balita->tanggal_lahir);
+        $tanggalPencatatan = Carbon::parse($request->tanggal_pencatatan);
+        $usia = $tanggalPencatatan->diffInMonths($balita->tanggal_lahir);
 
         $jenisKelaminUntukService = strtoupper(substr($balita->jenis_kelamin, 0, 1));
 
@@ -228,23 +235,7 @@ class DataDiagnosisController extends Controller
         }
     }
 
-    public function pertumbuhananak()
-    {
-        $user = Auth::user();
-    
-        if ($user->hasRole('ortu')) {
-            // Ambil ID semua anak milik ortu ini
-            $balitaIds = $user->balitas->pluck('id');
-    
-            // Ambil diagnosis hanya untuk anak-anak ortu ini
-            $diagnoses = RekapBulanan::whereIn('balita_id', $balitaIds)->with('balita')->get();
-        } else {
-            // Jika bukan ortu (misalnya admin/petugas), tampilkan semua
-            $diagnoses = RekapBulanan::with('balita')->get();
-        }
-    
-        return view('datadiagnosis.rekap_pertumbuhan_anak', compact('diagnoses'));
-    }
+  
 
     public function accDiagnosis($id)
     {
@@ -299,6 +290,11 @@ class DataDiagnosisController extends Controller
         // Hapus data diagnosis setelah direkap
         $diagnosis->delete();
 
-        return redirect()->route('bidan.DataDiagnosisIndex')->with('success', 'Diagnosis berhasil direkap bulanan dan stunting');
+        if (auth()->user()->hasRole('admin')) {
+            return redirect()->route('admin.DataDiagnosisIndex')->with('success', 'Diagnosis berhasil direkap bulanan dan stunting');
+        } elseif (auth()->user()->hasRole('kader')) {
+            return redirect()->route('kader.DataDiagnosisIndex')->with('success', 'Diagnosis berhasil direkap bulanan dan stunting.');
+        }
+
     }
 }
