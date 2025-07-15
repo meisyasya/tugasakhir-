@@ -36,20 +36,20 @@
                     <button type="submit" class="btn btn-primary me-2">Filter</button>
                     <a href="{{ route('bidan.RekapStuntingIndex') }}" class="btn btn-secondary me-2">Reset</a>
 
-                    @if(request('bulan'))
+                    @can('post-bidan')
                         <a href="{{ route('bidan.RekapStuntingCetakBulan', ['bulan' => request('bulan')]) }}" target="_blank" class="btn btn-success me-2">
                             <i class="fas fa-print"></i> Cetak Bulan
                         </a>
-                    @endif
+                    @endcan
 
-                    @if(request('bulan'))
+                    @can('post-bidan')
                         @php
                             $tahun = \Carbon\Carbon::parse(request('bulan'))->format('Y');
                         @endphp
                         <a href="{{ route('bidan.RekapStuntingCetakTahun', ['tahun' => $tahun]) }}" target="_blank" class="btn btn-info">
                             <i class="fas fa-calendar-alt"></i> Cetak Tahun
                         </a>
-                    @endif
+                    @endcan
                 </div>
             </form>
 

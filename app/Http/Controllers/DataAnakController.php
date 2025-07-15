@@ -20,7 +20,8 @@ class DataAnakController extends Controller
      */
     public function index(Request $request)
     {
-        $user = Auth::user(); // Gunakan Auth::user() untuk konsistensi
+        // instance user yang sedang login
+        $user = Auth::user(); 
 
         $balitas = collect(); // Inisialisasi koleksi kosong
         $listPosyandu = collect(); // Inisialisasi koleksi kosong
@@ -35,11 +36,15 @@ class DataAnakController extends Controller
             if ($request->filled('posyandu')) {
                 $query->where('posyandu', $request->posyandu);
             }
+            // Eksekusi query dengan eager loading relasi 'user' (pemilik data balita)
             $balitas = $query->with('user')->get();
 
         } elseif ($user->hasRole('kader')) {
             // Kader hanya bisa melihat posyandu mereka sendiri
             $listPosyandu = collect([$user->posyandu]); // Pastikan ini array/collection
+
+            // Mengambil data balita yang memiliki `user_id` sama dengan ID user yang sedang login.
+            // Melakukan eager loading relasi 'user'.
             $balitas = Balita::where('posyandu', $user->posyandu)
                 ->with('user')
                 ->get();
@@ -64,6 +69,7 @@ class DataAnakController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        
         return view('DataAnak.index', compact('balitas', 'listPosyandu'));
     }
 
@@ -109,69 +115,6 @@ class DataAnakController extends Controller
 }
 
 
-public function store2(Request $request)
-{
-    $user = auth()->user();
-
-    $rules = [
-        'nik' => 'required|numeric|digits:16|unique:balitas,nik',
-        'nama' => 'required|string|max:255',
-        'tanggal_lahir' => 'required|date_format:d-m-Y',
-        'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
-        'img' => 'required|image|max:2048',
-        'berat_badan' => 'required|numeric|min:0',
-        'tinggi_badan' => 'required|numeric|min:0',
-        'lingkar_kepala' => 'required|numeric|min:0',
-        'nik_ibu' => 'required|numeric|digits:16',
-        //'user_id' => 'required|exists:users,id', // Kalau pakai auth, gak perlu ini
-        'alamat_lengkap' => 'required|string',
-        'rt' => 'required|string|max:3',
-        'rw' => 'required|string|max:3',
-    ];
-
-    // Jika admin, wajib input posyandu
-    if ($user->hasRole('admin')) {
-        $rules['posyandu'] = 'required|string';
-        $posyandu = $request->posyandu;
-    } elseif ($user->hasRole('kader')) {
-        // posyandu dari user login
-        $posyandu = $user->posyandu ?? null;
-        if (!$posyandu) {
-            return back()->withErrors(['posyandu' => 'Posyandu Anda belum terdaftar'])->withInput();
-        }
-    } else {
-        abort(403, 'Unauthorized');
-    }
-
-    $request->validate($rules);
-
-    try {
-        $tanggalLahir = Carbon::createFromFormat('d-m-Y', $request->tanggal_lahir)->format('Y-m-d');
-    } catch (\Exception $e) {
-        return back()->withErrors(['tanggal_lahir' => 'Format tanggal tidak valid.'])->withInput();
-    }
-
-    $data = $request->except('img');
-    $data['tanggal_lahir'] = $tanggalLahir;
-    $data['posyandu'] = $posyandu;
-    $data['user_id'] = $user->id; // Simpan user yang input (admin/kader)
-    $data['nama_ibu'] = $user->name; // Nama ibu diambil dari user login
-
-    if ($request->hasFile('img')) {
-        $file = $request->file('img');
-        $filename = now()->format('YmdHis') . '_' . Str::slug($request->nama) . '.' . $file->getClientOriginalExtension();
-        $file->storeAs('public/images/balita', $filename);
-        $data['img'] = 'storage/images/balita/' . $filename;
-    }
-
-    Balita::create($data);
-
-    if ($user->hasRole('admin')) {
-        return redirect()->route('admin.DataAnakIndex')->with('success', 'Data Balita berhasil ditambahkan oleh Admin.');
-    } else {
-        return redirect()->route('ortu.DataAnakIndex')->with('success', 'Data Balita berhasil ditambahkan.');
-    }
-}
 
 
     
@@ -199,29 +142,28 @@ public function store2(Request $request)
         $tanggalLahir = Carbon::createFromFormat('d-m-Y', $request->tanggal_lahir)->format('Y-m-d');
     } catch (\Exception $e) {
         return back()->withErrors(['tanggal_lahir' => 'Format tanggal tidak valid.'])->withInput();
-    }
+    } 
 
     $data = $request->except('img');
     $data['tanggal_lahir'] = $tanggalLahir;
 
-    // Ambil nama ibu dari relasi user
+  // Mencari user berdasarkan user_id yang diterima dari request.
     $user = User::findOrFail($request->user_id);
     $data['nama_ibu'] = $user->name;
 
     if ($request->hasFile('img')) {
         $file = $request->file('img');
+        // Format: TahunBulanHariJamMenitDetik_nama-balita.ekstensi
         $filename = now()->format('YmdHis') . '_' . Str::slug($request->nama) . '.' . $file->getClientOriginalExtension();
         $file->storeAs('public/images/balita', $filename);
         $data['img'] = 'storage/images/balita/' . $filename;
     }
-
+    // Membuat record baru di tabel 'balitas' menggunakan data yang sudah disiapkan.
     Balita::create($data);
 
     if (auth()->user()->hasRole('admin')) {
         return redirect()->route('admin.DataAnakIndex')->with('success', 'Data Balita berhasil ditambahkan oleh Admin.');
     } elseif (auth()->user()->hasRole('kader')) {
-        // Anda perlu menentukan rute untuk kader.
-        // Misalnya, 'kader.DataAnakIndex' atau 'kader.dashboard'
         return redirect()->route('kader.DataAnakIndex')->with('success', 'Data Balita berhasil ditambahkan oleh Kader.');
     }
 
@@ -229,7 +171,6 @@ public function store2(Request $request)
     return redirect('/dashboard')->with('success', 'Data Balita berhasil ditambahkan.');
 }
 
-    // Fallback jika tidak ada peran yang cocok (jarang terjadi jika otorisasi sudah di-ha}
 
     
     /**
@@ -282,7 +223,9 @@ public function store2(Request $request)
         // Konversi tanggal ke format Y-m-d
         $data['tanggal_lahir'] = Carbon::createFromFormat('d-m-Y', $request->tanggal_lahir)->format('Y-m-d');
     
+      // Memeriksa apakah ada file 'img' baru yang diunggah.
         if ($request->hasFile('img')) {
+            // apakah ada  img yg diunggah sebelumnya
             if ($balita->img) {
                 Storage::delete(str_replace('storage/', 'public/', $balita->img));
             }
@@ -306,10 +249,6 @@ public function store2(Request $request)
         return redirect('/dashboard')->with('success', 'Data Balita berhasil ditambahkan.');
     
     }
-    
-
-    
-
     /**
      * Remove the specified resource from storage.
      */
@@ -335,11 +274,6 @@ public function store2(Request $request)
     // Fallback jika tidak ada peran yang cocok atau rute default
     return redirect('/dashboard')->with('success', 'Data Balita berhasil dihapus.');
 }
-
-
-
-
-
 
 
 

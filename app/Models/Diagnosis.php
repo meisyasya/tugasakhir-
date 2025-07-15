@@ -26,6 +26,7 @@ class Diagnosis extends Model
     {
         return $this->belongsTo(Balita::class, 'balita_id');
     }
+
     protected $table = 'diagnoses';  // Pastikan nama tabel sesuai
 
      

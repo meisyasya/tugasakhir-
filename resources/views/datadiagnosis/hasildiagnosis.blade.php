@@ -55,33 +55,42 @@
                             {{-- ============================================= --}}
                             <h5 class="text-bold mt-3">Status Stunting (Tinggi Badan / Usia)</h5>
 @php
+    // Ambil status stunting dari hasil diagnosis. 
     $statusStunting = optional($diagnosis)->hasil_diagnosis;
     $tinggiBadan = optional($diagnosis)->tb;
+    // Inisialisasi variabel untuk kelas CSS yang akan menentukan warna teks status.
     $stuntingClass = '';
     if ($statusStunting == 'Stunting Berat') {
-        $stuntingClass = 'text-danger';
+        $stuntingClass = 'text-danger'; // Merah untuk indikasi berat
     } elseif ($statusStunting == 'Stunting Ringan') {
-        $stuntingClass = 'text-warning';
+        $stuntingClass = 'text-warning'; //kuning
     } else {
-        $stuntingClass = 'text-success';
+        $stuntingClass = 'text-success';//hijau
     }
 @endphp
 
+{{-- Menampilkan status stunting dengan warna yang sesuai --}}
 <h4 class="{{ $stuntingClass }}">
     {{ $statusStunting }}
 </h4>
+{{-- tinggi badan balita --}}
 <p>Tinggi Badan: {{ $tinggiBadan }} cm</p>
 
 @if($standarTB)
     @php
+        // mengambil batas minimun
         $overallMinTb = $standarTB['overall_min'] ?? 0;
+        // mengambil batas maksimum
         $overallMaxTb = $standarTB['overall_max'] ?? 100;
+        // hitung rentang
         $rangeTbTotal = $overallMaxTb - $overallMinTb;
 
+        //mengambil range (dari - sampai)
         $tb_red_segment = $standarTB['ranges']['red'] ?? [0, 0];
         $tb_yellow_segment = $standarTB['ranges']['yellow'] ?? [0, 0];
         $tb_green_segment = $standarTB['ranges']['green'] ?? [0, 0];
 
+        // Mendestrukturisasi array segmen untuk mendapatkan nilai 'from' dan 'to' secara terpisah.
         $tb_red_from = $tb_red_segment[0];
         $tb_red_to = $tb_red_segment[1];
 
@@ -91,26 +100,27 @@
         $tb_green_from = $tb_green_segment[0];
         $tb_green_to = $tb_green_segment[1];
 
-        // Tinggi badan aktual anak
+        // Tinggi badan aktual anak penentu bar
         $tinggi_badan_actual = $diagnosis->tb ?? 0;
 
         // Hitung posisi indikator (tetap menggunakan persentase dari keseluruhan rentang)
-        $positionTb = 0;
+        $positionTb = 0; // Inisialisasi posisi awal sebagai 0 (paling kiri)
         if ($rangeTbTotal > 0) {
             $positionTb = (($tinggi_badan_actual - $overallMinTb) / $rangeTbTotal) * 100;
             $positionTb = max(0, min(100, $positionTb));
         }
     @endphp
+
     <div class="custom-progress-bar-container">
-        {{-- Hapus style="width: ..." di sini --}}
+        
         <div class="progress-segment red" data-range-from="{{ $tb_red_from }}" data-range-to="{{ $tb_red_to }}">
             <span>{{ number_format($tb_red_from, 1) }} - {{ number_format($tb_red_to, 1) }} cm</span>
         </div>
-        {{-- Hapus style="width: ..." di sini --}}
+        
         <div class="progress-segment yellow" data-range-from="{{ $tb_yellow_from }}" data-range-to="{{ $tb_yellow_to }}">
             <span>{{ number_format($tb_yellow_from, 1) }} - {{ number_format($tb_yellow_to, 1) }} cm</span>
         </div>
-        {{-- Hapus style="width: ..." di sini --}}
+        
         <div class="progress-segment green" data-range-from="{{ $tb_green_from }}" data-range-to="{{ $tb_green_to }}">
             <span>&ge; {{ number_format($tb_green_from, 1) }} cm</span>
         </div>
@@ -123,6 +133,7 @@
 @else
     <div class="alert alert-info mt-3">Data standar Tinggi Badan / Usia tidak tersedia untuk usia ini.</div>
 @endif
+
 
 
                             <hr class="my-4">

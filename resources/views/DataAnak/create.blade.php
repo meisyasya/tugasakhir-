@@ -150,8 +150,10 @@
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                </div>  
+                                </div> 
+                            
 
+                            
                                 <h5 class="mt-4 text-primary"><strong><i class="fas fa-map-marked"></i> Alamat</strong></h5>
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
@@ -164,7 +166,7 @@
                                             <label for="rt"><i class="fas fa-map-marker-alt"></i> RT</label>
                                             <select name="rt" id="rt" class="form-control" required>
                                                 <option value="">-- Pilih RT --</option>
-                                                @for ($i = 1; $i <= 7; $i++)
+                                                @for ($i = 1; $i <= 5; $i++)
                                                     <option value="{{ sprintf('%03d', $i) }}" {{ old('rt') == sprintf('%03d', $i) ? 'selected' : '' }}>
                                                         {{ sprintf('%03d', $i) }}
                                                     </option>

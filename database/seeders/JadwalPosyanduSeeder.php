@@ -14,14 +14,14 @@ class JadwalPosyanduSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ['nama' => 'Posyandu Mawar', 'tanggal' => '2025-03-10', 'lokasi' => 'Posyandu Melati 1'],
-            ['nama' => 'Posyandu Melati', 'tanggal' => '2025-03-12', 'lokasi' => 'Posyandu Melati 2'],
-            ['nama' => 'Posyandu Dahlia', 'tanggal' => '2025-03-15', 'lokasi' => 'Posyandu Melati 3'],
-            ['nama' => 'Posyandu Anggrek', 'tanggal' => '2025-03-18', 'lokasi' => 'Posyandu Melati 4'],
-            ['nama' => 'Posyandu Teratai', 'tanggal' => '2025-03-20', 'lokasi' => 'Posyandu Melati 5'],
-            ['nama' => 'Posyandu Cempaka', 'tanggal' => '2025-03-22', 'lokasi' => 'Posyandu Melati 6'],
-            ['nama' => 'Posyandu Kenanga', 'tanggal' => '2025-03-25', 'lokasi' => 'Posyandu Melati 7'],
-            ['nama' => 'Posyandu Bougenville', 'tanggal' => '2025-03-28', 'lokasi' => 'Posyandu Melati 8'],
+            ['nama' => 'Posyandu Melati 1', 'tanggal' => '2025-03-10', 'lokasi' => 'Rumah Ibu Herman'],
+            ['nama' => 'Posyandu Melati 2', 'tanggal' => '2025-03-12', 'lokasi' => 'Rumah Ibu Tyas'],
+            ['nama' => 'Posyandu Melati 3', 'tanggal' => '2025-03-15', 'lokasi' => 'Rumah Ibu Dasirun'],
+            ['nama' => 'Posyandu Melati 4', 'tanggal' => '2025-03-18', 'lokasi' => 'Rumah Ibu Indra'],
+            ['nama' => 'Posyandu Melati 5', 'tanggal' => '2025-03-20', 'lokasi' => 'Rumah Ibu Sukardi'],
+            ['nama' => 'Posyandu Melati 6', 'tanggal' => '2025-03-22', 'lokasi' => 'Rumah Ibu Karno'],
+            ['nama' => 'Posyandu Melati 7', 'tanggal' => '2025-03-25', 'lokasi' => 'Rumah Ibu Tugino'],
+            ['nama' => 'Posyandu Melati 8', 'tanggal' => '2025-03-28', 'lokasi' => 'Rumah Ibu Sukar'],
         ];
 
         foreach ($data as $item) {

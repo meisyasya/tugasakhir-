@@ -147,6 +147,11 @@
                                     <a href="{{ route('bidan.rekap.tb_usia', $diagnosis->balita_id) }}" class="btn btn-primary">Grafik Stunting</a>
                                     <a href="{{ route('bidan.rekap.bb_usia', $diagnosis->balita_id) }}" class="btn btn-primary">Grafik Gizi</a>
                                     @endcan
+                                    @can('post-ortu')
+                                    <a href="{{ route('ortu.rekap.tb_usia', $diagnosis->balita_id) }}" class="btn btn-primary">Grafik Stunting</a>
+                                    <a href="{{ route('ortu.rekap.bb_usia', $diagnosis->balita_id) }}" class="btn btn-primary">Grafik Gizi</a>
+                                    @endcan
+
                                 </div>
 
                                 {{-- ================================================================= --}}

@@ -432,6 +432,15 @@
           </p>
         </a>
     </li>
+
+    <li class="nav-item">
+      <a href="{{ route('kader.pertumbuhananak') }}" class="nav-link {{ request()->routeIs('bidan.pertumbuhananak') ? 'active' : '' }}">
+          <i class="nav-icon fas fa-clipboard-list"></i>
+          <p>
+              Pertumbuhan Anak
+          </p>
+      </a>
+  </li>
     
     <li class="nav-item">
       <div class="sidebar-divider-full"></div> 
@@ -450,6 +459,15 @@
         <p>Rekap Bulanan</p>
       </a>
     </li> 
+
+    <li class="nav-item">
+      <a href="{{ route('kader.RekapStuntingIndex') }}" class="nav-link {{ request()->routeIs('bidan.RekapStuntingIndex') ? 'active' : '' }}">
+          <i class="nav-icon fas fa-user-injured"></i>
+          <p>
+              Rekap Stunting
+          </p>
+      </a>
+  </li> 
     
     <li class="nav-item">
         <a href="{{ route('kader.DistribusiBantuanIndex') }}" class="nav-link {{ request()->routeIs('kader.DistribusiBantuanIndex') ? 'active' : '' }}">

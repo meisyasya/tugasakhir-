@@ -26,6 +26,7 @@ class Balita extends Model
         'posyandu',
     ];
 
+    // relasi eloquen
     public function user()
     {
         return $this->belongsTo(User::class);

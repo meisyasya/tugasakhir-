@@ -65,6 +65,12 @@
                 <a href="{{ route('bidan.pertumbuhananak') }}" class="btn btn-secondary">Kembali ke Rekap Umum</a>
             </div>
             @endcan
+            @can('post-ortu')
+            <div class="page-header">
+                <h1 class="m-0">Grafik Berat Badan per Usia (BB/U) {{ $balita->nama }}</h1>
+                <a href="{{ route('ortu.pertumbuhananak') }}" class="btn btn-secondary">Kembali ke Rekap Umum</a>
+            </div>
+            @endcan
         </div>
     </div>
 
@@ -283,12 +289,11 @@
                         intersect: false,
                         callbacks: {
                             label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) { label += ': '; }
-                                if (context.parsed.y !== null) {
-                                    label += context.parsed.y + ' kg (Usia ' + context.parsed.x + ' bulan)';
+                                // Hanya tampilkan tooltip untuk dataset 'Data Pengukuran Balita'
+                                if (context.dataset.label && context.dataset.label.startsWith('Data Pengukuran')) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' kg (Usia ' + context.parsed.x + ' bulan)';
                                 }
-                                return label;
+                                return ''; // Jangan tampilkan label untuk dataset WHO standar
                             }
                         }
                     },

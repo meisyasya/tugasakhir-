@@ -146,10 +146,10 @@ public function show($id)
     if (auth()->user()->hasRole('admin')) {
         return redirect()->route('admin.DistribusiBantuanShow', ['distribusi_bantuan' => $distribusi->rekap_stunting_id])
         ->with('success', 'Data distribusi bantuan berhasil diperbarui.');
-     } elseif (auth()->user()->hasRole('kader')) {
+    } elseif (auth()->user()->hasRole('kader')) {
         return redirect()->route('kader.DistribusiBantuanShow', ['distribusi_bantuan' => $distribusi->rekap_stunting_id])
         ->with('success', 'Data distribusi bantuan berhasil diperbarui.');
-    }    
+    }
 }
 
 

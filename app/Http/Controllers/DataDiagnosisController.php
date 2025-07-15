@@ -16,12 +16,12 @@ use App\Services\BalitaGrowthService;
 class DataDiagnosisController extends Controller
 {
 
-    protected $balitaGrowthService; // Deklarasi properti untuk service
+    protected $balitaGrowthService;  // Deklarasi properti protected untuk menyimpan instance BalitaGrowthService.
 
     // Constructor untuk menginjeksikan BalitaGrowthService
     public function __construct(BalitaGrowthService $balitaGrowthService)
     {
-        $this->balitaGrowthService = $balitaGrowthService;
+        $this->balitaGrowthService = $balitaGrowthService; // Menyimpan instance service ke properti kelas
     }
 
     public function index()
@@ -58,39 +58,40 @@ class DataDiagnosisController extends Controller
             'tanggal_pencatatan' => 'required|date',
         ]);
 
+         // Mengambil data balita dari database berdasarkan ID yang diterima dari input 'nama' (nama di form sebenarnya adalah ID balita).
         $balita = Balita::findOrFail($request->nama);
         // $usia = now()->diffInMonths($balita->tanggal_lahir);
         $tanggalPencatatan = Carbon::parse($request->tanggal_pencatatan);
-        $usia = $tanggalPencatatan->diffInMonths($balita->tanggal_lahir);
+        $usia = $tanggalPencatatan->diffInMonths($balita->tanggal_lahir);//menghitung usia
 
         $jenisKelaminUntukService = strtoupper(substr($balita->jenis_kelamin, 0, 1));
 
         $berat_badan = $request->berat_badan;
         $tinggi_badan_cm = $request->tinggi_badan;
+        // Mengkonversi tinggi badan dari centimeter ke meter untuk perhitungan IMT.
         $tinggi_badan_m = $tinggi_badan_cm / 100;
+        // Menghitung Indeks Massa Tubuh (IMT).
         $imt = $berat_badan / ($tinggi_badan_m * $tinggi_badan_m);
         $lingkar_kepala = $request->lingkar_kepala;
 
-        // **PENTING: Gunakan cekGiziIMT untuk status gizi yang akan disimpan**
+        // Memanggil metode 'cekGiziIMT' dari BalitaGrowthService untuk mendapatkan status gizi berdasarkan IMT/U.
         $status_gizi_imt = $this->balitaGrowthService->cekGiziIMT(
             round($imt, 2), // Pastikan IMT yang dihitung dibulatkan sebelum diteruskan
             $usia,
             $jenisKelaminUntukService
         );
 
-        // Jika Anda masih ingin menyimpan hasil BB/U, Anda bisa menggunakan variabel terpisah
-        // $status_gizi_bbu = $this->balitaGrowthService->hitungStatusGizi(
-        //     $berat_badan,
-        //     $usia,
-        //     $jenisKelaminUntukService
-        // );
-
+      
+        // Memanggil metode 'cekStunting' dari BalitaGrowthService.
+       // Metode ini akan mengembalikan status stunting balita (misal: "Tidak Stunting", "Stunting Ringan", "Stunting Berat")
+       // berdasarkan tinggi badan, usia, dan jenis kelamin.
         $status_stunting = $this->balitaGrowthService->cekStunting(
             $tinggi_badan_cm,
             $usia,
             $jenisKelaminUntukService
         );
 
+        
         $diagnosis = Diagnosis::create([
             'balita_id' => $request->nama,
             'tanggal_diagnosis' => $request->tanggal_pencatatan,
@@ -99,18 +100,19 @@ class DataDiagnosisController extends Controller
             'tb' => $tinggi_badan_cm,
             'imt' => round($imt, 2),
             'lingkar_kepala' => $lingkar_kepala,
-            'status_gizi' => $status_gizi_imt, // Simpan hasil IMT/U
+            'status_gizi' => $status_gizi_imt,  
             'hasil_diagnosis' => $status_stunting,
         ]);
-
+        // Memanggil metode 'getStandarTinggiBadan' dari BalitaGrowthService untuk mendapatkan standar tinggi badan.
         $standarTB = $this->balitaGrowthService->getStandarTinggiBadan($usia, $jenisKelaminUntukService);
         // Panggil getStandarIMT dengan parameter usia dan jenis kelamin
         $standarIMT = $this->balitaGrowthService->getStandarIMT($usia, $jenisKelaminUntukService);
-
+ 
         return view('datadiagnosis.hasildiagnosis', compact('balita', 'diagnosis', 'standarTB', 'standarIMT'))
             ->with('success', 'Diagnosis berhasil disimpan.')
             ->with('diagnosis_id_for_wa', $diagnosis->id);
     }
+
 
     // Fungsi yang dipanggil saat klik tombol kirim WA
     public function kirimPesanWA(Request $request, $diagnosisId)
@@ -141,6 +143,7 @@ class DataDiagnosisController extends Controller
             return back()->with('error', 'Nomor HP wali balita tidak ditemukan atau tidak valid.');
         }
 
+        // membersihkan no hp dari karakter
         $noHp = preg_replace('/[^0-9]/', '', $noHp);
         $noHp = '62' . ltrim($noHp, '0');
 
@@ -185,8 +188,7 @@ class DataDiagnosisController extends Controller
             $pesan = "Yth. Bapak/Ibu Wali dari Ananda *{$namaUntukPesan}*,\n\n";
         }
 
-        $pesan .= "Dengan hormat,\n\n";
-        $pesan .= "Bersama ini, kami memberitahukan hasil posyandu Ananda *{$namaUntukPesan}* yang telah dilaksanakan pada tanggal *{$tanggalPesan}*.\n\n";
+        $pesan .= "Dengan hormat, kami memberitahukan hasil posyandu Ananda *{$namaUntukPesan}* yang telah dilaksanakan pada tanggal *{$tanggalPesan}*.\n\n";
 
         $pesan .= "*Detail Informasi Balita:*\n";
         if ($nikBalita) $pesan .= "🔢 *NIK*: {$nikBalita}\n";
@@ -235,7 +237,8 @@ class DataDiagnosisController extends Controller
         }
     }
 
-  
+
+
 
     public function accDiagnosis($id)
     {

@@ -50,7 +50,7 @@
       </div>
     @endif
 
-    <form action="{{ route('validasi-forgot-password-act') }}" method="POST">
+    <form action="{{ route('reset-password-act') }}" method="POST">
       @csrf
       <input type="hidden" name="token" value="{{ $token }}">
 

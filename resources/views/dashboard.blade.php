@@ -78,7 +78,7 @@
                     </ol>
                 </div></div></div></div>
 
-   
+    
     @cannot('post-ortu')
     <section class="content">
         <div class="container-fluid">
@@ -205,6 +205,28 @@
                         </div>
                     </div>
                 </div>
+                {{-- Tambahkan grafik BB/U di sini jika diperlukan, dengan logika yang sama --}}
+                <div class="col-12">
+                    <div class="card chart-container">
+                        <div class="card-header">
+                            <h3 class="card-title">Grafik Pertumbuhan Berat Badan per Usia (BB/U) untuk {{ $balitaPertama->nama }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="weightForAgeChartOrtu" style="height:400px"></canvas>
+                        </div>
+                        <div class="card-footer text-center">
+                            <p class="mb-0">
+                                <span style="display:inline-block; width:15px; height:8px; background-color:#28a745; border-radius:2px; margin-right:5px;"></span> Data Pengukuran {{ $balitaPertama->nama }}
+                                <span style="display:inline-block; width:15px; height:8px; background-color:rgba(255, 99, 132, 0.7); border-radius:2px; margin-left:15px; margin-right:5px;"></span> WHO P3 (Sangat Kurus)
+                                <span style="display:inline-block; width:15px; height:8px; background-color:rgba(255, 159, 64, 0.7); border-radius:2px; margin-left:15px; margin-right:5px;"></span> WHO P15 (Kurus)
+                                <span style="display:inline-block; width:15px; height:8px; background-color:rgba(75, 192, 192, 0.9); border-radius:2px; margin-left:15px; margin-right:5px;"></span> WHO Median (Normal)
+                                <span style="display:inline-block; width:15px; height:8px; background-color:rgba(54, 162, 235, 0.7); border-radius:2px; margin-left:15px; margin-right:5px;"></span> WHO P85 (Gemuk)
+                                <span style="display:inline-block; width:15px; height:8px; background-color:rgba(153, 102, 255, 0.7); border-radius:2px; margin-left:15px; margin-right:5px;"></span> WHO P97 (Sangat Gemuk)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 @else
                 <div class="col-12">
                     <div class="alert alert-info text-center">
@@ -295,7 +317,6 @@
 
 
         // --- Grafik Tinggi Badan per Usia (TB/U) untuk Orang Tua (heightForAgeChartOrtu) ---
-        // Pastikan elemen canvas dengan ID 'heightForAgeChartOrtu' ada
         const ctxHeightOrtu = document.getElementById('heightForAgeChartOrtu');
         if (ctxHeightOrtu) { // Hanya jalankan jika elemen canvas ada (yaitu, jika ada balita)
             const rekapDataOrtu = @json($rekapDataOrtu ?? []);
@@ -426,17 +447,157 @@
                             intersect: false,
                             callbacks: {
                                 label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) { label += ': '; }
-                                    if (context.parsed.y !== null) {
-                                        label += context.parsed.y.toFixed(2) + ' cm (Usia ' + context.parsed.x + ' bulan)';
+                                    // Hanya tampilkan tooltip untuk dataset 'Data Pengukuran Balita'
+                                    if (context.dataset.label && context.dataset.label.startsWith('Data Pengukuran')) {
+                                        return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' cm (Usia ' + context.parsed.x + ' bulan)';
                                     }
-                                    return label;
+                                    return ''; // Jangan tampilkan label untuk dataset WHO standar
                                 }
                             }
                         },
                         legend: { display: false }, // Legenda akan dibuat manual di card-footer
                         title: { display: true, text: 'Grafik Pertumbuhan Tinggi Badan per Usia (WHO)' }
+                    }
+                }
+            });
+        }
+
+        // --- Grafik Berat Badan per Usia (BB/U) untuk Orang Tua (weightForAgeChartOrtu) ---
+        const ctxWeightOrtu = document.getElementById('weightForAgeChartOrtu');
+        if (ctxWeightOrtu) { // Hanya jalankan jika elemen canvas ada (yaitu, jika ada balita)
+            const rekapDataWeightOrtu = @json($rekapDataOrtu ?? []); // Menggunakan rekapDataOrtu juga untuk BB/U
+            const whoStandardsWeightOrtu = @json($selectedWhoStandardWeightOrtu ?? []); // Pastikan variabel ini ada di controller
+
+            const balitaNamaWeightOrtu = @json($balitaPertama->nama ?? 'Balita Anda');
+
+            let minUsiaWeight = 0;
+            let maxUsiaWeight = 60;
+            if (rekapDataWeightOrtu.length > 0) {
+                minUsiaWeight = Math.min(minUsiaWeight, ...rekapDataWeightOrtu.map(d => d.usia));
+                maxUsiaWeight = Math.max(maxUsiaWeight, ...rekapDataWeightOrtu.map(d => d.usia));
+            }
+            maxUsiaWeight = Math.max(maxUsiaWeight, 60);
+
+            const chartLabelsWeightOrtu = Array.from({ length: maxUsiaWeight + 1 }, (_, i) => i);
+
+            const balitaWeightDataOrtu = [];
+            rekapDataWeightOrtu.forEach(item => {
+                balitaWeightDataOrtu.push({ x: item.usia, y: item.bb });
+            });
+
+            const p3DataWeightOrtu = whoStandardsWeightOrtu.map(item => ({ x: item.usia, y: item['3rd'] }));
+            const p15DataWeightOrtu = whoStandardsWeightOrtu.map(item => ({ x: item.usia, y: item['15th'] }));
+            const medianDataWeightOrtu = whoStandardsWeightOrtu.map(item => ({ x: item.usia, y: item['median'] }));
+            const p85DataWeightOrtu = whoStandardsWeightOrtu.map(item => ({ x: item.usia, y: item['85th'] }));
+            const p97DataWeightOrtu = whoStandardsWeightOrtu.map(item => ({ x: item.usia, y: item['97th'] }));
+
+            new Chart(ctxWeightOrtu, {
+                type: 'line',
+                data: {
+                    labels: chartLabelsWeightOrtu,
+                    datasets: [
+                        {
+                            label: 'Data Pengukuran ' + balitaNamaWeightOrtu,
+                            data: balitaWeightDataOrtu,
+                            borderColor: '#28a745',
+                            backgroundColor: '#28a745',
+                            pointRadius: 5,
+                            pointBackgroundColor: '#28a745',
+                            showLine: true,
+                            tension: 0.2,
+                            fill: false,
+                            type: 'line',
+                            parsing: { xAxisKey: 'x', yAxisKey: 'y' }
+                        },
+                        {
+                            label: 'WHO P3 (Sangat Kurus)',
+                            data: p3DataWeightOrtu,
+                            borderColor: 'rgba(255, 99, 132, 0.7)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0,
+                            tension: 0.4,
+                            parsing: { xAxisKey: 'x', yAxisKey: 'y' }
+                        },
+                        {
+                            label: 'WHO P15 (Kurus)',
+                            data: p15DataWeightOrtu,
+                            borderColor: 'rgba(255, 159, 64, 0.7)',
+                            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                            fill: false,
+                            pointRadius: 0,
+                            tension: 0.4,
+                            parsing: { xAxisKey: 'x', yAxisKey: 'y' }
+                        },
+                        {
+                            label: 'WHO Median (Normal)',
+                            data: medianDataWeightOrtu,
+                            borderColor: 'rgba(75, 192, 192, 0.9)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderWidth: 2,
+                            fill: false,
+                            pointRadius: 0,
+                            tension: 0.4,
+                            parsing: { xAxisKey: 'x', yAxisKey: 'y' }
+                        },
+                        {
+                            label: 'WHO P85 (Gemuk)',
+                            data: p85DataWeightOrtu,
+                            borderColor: 'rgba(54, 162, 235, 0.7)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            fill: false,
+                            pointRadius: 0,
+                            tension: 0.4,
+                            parsing: { xAxisKey: 'x', yAxisKey: 'y' }
+                        },
+                        {
+                            label: 'WHO P97 (Sangat Gemuk)',
+                            data: p97DataWeightOrtu,
+                            borderColor: 'rgba(153, 102, 255, 0.7)',
+                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0,
+                            tension: 0.4,
+                            parsing: { xAxisKey: 'x', yAxisKey: 'y' }
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: { display: true, text: 'Usia (bulan)' },
+                            min: 0,
+                            max: 60,
+                            ticks: { stepSize: 6 }
+                        },
+                        y: {
+                            title: { display: true, text: 'Berat Badan (kg)' },
+                            beginAtZero: false,
+                            min: Math.floor(Math.min(...Object.values(whoStandardsWeightOrtu).flatMap(o => [o['3rd'], o['97th']]), ...rekapDataWeightOrtu.map(d => d.bb)) * 0.9),
+                            max: Math.ceil(Math.max(...Object.values(whoStandardsWeightOrtu).flatMap(o => [o['3rd'], o['97th']]), ...rekapDataWeightOrtu.map(d => d.bb)) * 1.1)
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    // Hanya tampilkan tooltip untuk dataset 'Data Pengukuran Balita'
+                                    if (context.dataset.label && context.dataset.label.startsWith('Data Pengukuran')) {
+                                        return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' kg (Usia ' + context.parsed.x + ' bulan)';
+                                    }
+                                    return ''; // Jangan tampilkan label untuk dataset WHO standar
+                                }
+                            }
+                        },
+                        legend: { display: false }, // Legenda akan dibuat manual di card-footer
+                        title: { display: true, text: 'Grafik Pertumbuhan Berat Badan per Usia (WHO)' }
                     }
                 }
             });

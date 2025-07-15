@@ -104,7 +104,7 @@ Route::resource('users', UsersController::class)->names([
         'destroy' => 'DataDiagnosisDelete',
     ]);
     
-        // rekap bulanan
+    // rekap bulanan
     Route::post('/diagnosis/acc/{id}', [DataDiagnosisController::class, 'accDiagnosis'])->name('DataDiagnosisAcc');
     Route::get('/rekap-bulanan', [RekapBulananController::class, 'index'])->name('rekapBulananIndex');
     Route::get('/rekap/{id}', [RekapBulananController::class, 'show'])->name('rekap.show');
@@ -331,6 +331,7 @@ Route::group(['prefix' => 'bidan', 'middleware' => ['auth'], 'as' => 'bidan.'], 
     Route::get('/rekap-stunting/cetak-tahun', [RekapStuntingController::class, 'cetakTahun'])->name('RekapStuntingCetakTahun');
 
 
+ 
     Route::resource('distribusi_bantuan', DistribusiBantuanController::class)->names([
         'index' => 'DistribusiBantuanIndex',
         // 'create' => 'DistribusiBantuanCreate',
@@ -340,6 +341,10 @@ Route::group(['prefix' => 'bidan', 'middleware' => ['auth'], 'as' => 'bidan.'], 
         'update' => 'DistribusiBantuanUpdate',
         'destroy' => 'DistribusiBantuanDelete',
     ]);
+
+    // Route::get('distribusi_bantuan/{diagnosis_id}', [DistribusiBantuanController::class, 'showw'])->name('DistribusiBantuanShow');
+    Route::get('distribusi_bantuan/create/{id}', [DistribusiBantuanController::class, 'create'])->name('DistribusiBantuanCreate');
+    Route::get('distribusi_bantuan/cetak-laporan/{id}', [DistribusiBantuanController::class, 'cetakLaporan'])->name('cetakLaporan');
 
     
 
@@ -392,6 +397,16 @@ Route::group(['prefix' => 'kader', 'middleware' => ['auth'], 'as' => 'kader.'], 
     Route::get('/rekap-bulanan', [RekapBulananController::class, 'index'])->name('rekapBulananIndex');
     Route::get('/rekap/{id}', [RekapBulananController::class, 'show'])->name('rekap.show');
     Route::get('/rekap-bulanan/print/{tanggal}', [RekapBulananController::class, 'print'])->name('rekap.print');
+
+
+    Route::get('/rekap', [RekapStuntingController::class, 'index'])->name('RekapStuntingIndex');   
+    Route::get('/rekap/{id}/edit', [RekapStuntingController::class, 'edit'])->name('RekapStuntingEdit');
+    Route::put('/rekap-stunting/{id}', [RekapStuntingController::class, 'update'])->name('RekapStuntingUpdate');
+
+
+    Route::get('/rekap-pertumbuhananak', [RekapPertumbuhanController::class, 'pertumbuhananak'])->name('pertumbuhananak');
+    Route::get('/rekap-pertumbuhananak/{balitaId}/detail', [RekapPertumbuhanController::class, 'showGrafikStunting'])->name('rekap.tb_usia');
+    Route::get('/rekap-pertumbuhananak/{balitaId}/grafik-gizi', [RekapPertumbuhanController::class, 'showGrafikGizi'])->name('rekap.bb_usia');
  
     
 

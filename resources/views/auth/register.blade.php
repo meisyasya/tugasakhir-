@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Daftar Akun - Sistem Posyandu</title>
+  <title>Daftar Akun - SIMESTI</title>
 
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,600&display=swap">
@@ -70,7 +70,7 @@
 
       <div class="col-md-6 login-right">
         <div class="text-center">
-          <h3 class="mb-4"><strong>Daftar Akun Posyandu</strong></h3>
+          <h3 class="mb-4"><strong>SIMESTI</strong></h3>
         </div>
 
         {{-- Error --}}

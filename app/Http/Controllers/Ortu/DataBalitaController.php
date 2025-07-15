@@ -16,6 +16,7 @@ class DataBalitaController extends Controller
         return view('Ortu.Balita.index', compact('balitas'));
         
     }
+    
     public function create()
     {
         $user = auth()->user();

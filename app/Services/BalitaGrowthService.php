@@ -8,6 +8,7 @@ class BalitaGrowthService
     // tabel tinggi badan menurut usia
     private $tabelTBperUsia = [
         'L' => [ 
+            // Usia (bulan) => [Tinggi Badan -3 SD, Tinggi Badan -2 SD]
             0  => [44.2, 46.1],
             1  => [48.9, 50.8],
             2  => [52.4, 54.4],
@@ -416,6 +417,7 @@ class BalitaGrowthService
     {
         $jenisKelamin = strtoupper($jenisKelamin);
 
+        // Jika tidak ada ('L' atau 'P'), mengembalikan pesan error.
         if (!isset($this->tabelTBperUsia[$jenisKelamin])) {
             return "Error: Jenis kelamin tidak valid. Gunakan 'L' untuk laki-laki atau 'P' untuk perempuan.";
         }
@@ -436,10 +438,16 @@ class BalitaGrowthService
             }
         }
 
+        // Setelah menemukan usia terdekat, cek lagi apakah entri untuk usia tersebut benar-benar ada di tabel.
+        // Ini adalah langkah keamanan tambahan jika logika `$usiaTerdekat` tidak selalu menemukan kecocokan yang diinginkan.
         if (!isset($this->tabelTBperUsia[$jenisKelamin][$usiaTerdekat])) {
             return "Error: Data referensi tinggi badan/panjang badan tidak tersedia untuk usia ini.";
         }
 
+        // Mengambil array dua nilai standar dari tabel referensi berdasarkan jenis kelamin dan usia terdekat.
+        // Destructuring assignment:
+        // - $min3SD_TB akan mendapatkan nilai dari indeks 0 (yaitu ambang batas -3 SD).
+        // - $min2SD_TB akan mendapatkan nilai dari indeks 1 (yaitu ambang batas -2 SD).
         [$min3SD_TB, $min2SD_TB] = $this->tabelTBperUsia[$jenisKelamin][$usiaTerdekat];
 
         if ($tinggiBadan < $min3SD_TB) {

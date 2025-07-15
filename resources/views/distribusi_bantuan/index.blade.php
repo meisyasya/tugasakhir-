@@ -177,6 +177,9 @@
                 @can('post-kader')
                 <a href="{{ route('kader.DistribusiBantuanShow', $data->id) }}" class="btn btn-custom">Lihat Detail</a>
                 @endcan
+                @can('post-bidan')
+                <a href="{{ route('bidan.DistribusiBantuanShow', $data->id) }}" class="btn btn-custom">Lihat Detail</a>
+                @endcan
                 @can('post-pemdes')
                 <a href="{{ route('pemdes.DistribusiBantuanShow', $data->id) }}" class="btn btn-custom">Lihat Detail</a>
                 @endcan

@@ -28,10 +28,12 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required|string|min:6',
         ]);
+        //mengotentikasi pengguna dengan kredensial yang diberikan.
         if (Auth::attempt([
             'email' => $request->email,
             'password' => $request->password
         ], $request->remember)) {
+            //Jika otentikasi berhasil, ambil objek pengguna yang sedang login.
             $user = Auth::user();
             // Cek role dan redirect sesuai
             if ($user->hasRole('admin')) {
@@ -58,7 +60,6 @@ class AuthController extends Controller
         return view('auth.forgot_password');
     } 
 
-    
     public function forgot_password_act(Request $request)
 {
     $customMessage = [
@@ -165,15 +166,15 @@ public function register_proses(Request $request)
         'name' => 'required|string|max:255',
         'email' => 'required|email|unique:users,email',
         'password' => 'required|string|min:8|confirmed',
-        'nik' => 'required|string|max:20|unique:users,nik',
-        'phone' => 'required|string|max:20',
+        'nik' => 'required|string|digits:16|unique:users,nik',
+        'phone' => 'required|string|max:13',
     ]);
 
     // Membuat pengguna baru
     $user = User::create([
         'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
+        'email' => $request->email, // Mengambil nilai 'email' dari request HTTP dan menetapkannya ke kolom 'email'.
+        'password' => Hash::make($request->password), // Mengambil nilai 'password' dari request HTTP, mengenkripsinya (men-hash) menggunakan Hash::make() untuk keamanan, lalu menetapkannya ke kolom 'password'.
         'nik' => $request->nik,
         'phone' => $request->phone,
     ]);

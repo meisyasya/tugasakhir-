@@ -16,9 +16,12 @@ class RekapBulananController extends Controller
 
     public function index(Request $request)
 {
+    // Mengambil nilai input 'search' dari request.
     $search = $request->input('search');
 
+    // Menginisialisasi query builder untuk model RekapBulanan.
     $rekapsQuery = RekapBulanan::with('balita')
+        // Metode `when()` hanya akan menjalankan callback jika kondisi pertama (yaitu $search ada dan tidak kosong) adalah true.
         ->when($search, function ($query, $search) {
             $query->whereHas('balita', function ($q) use ($search) {
                 $q->where('nama', 'like', '%' . $search . '%');
@@ -27,6 +30,7 @@ class RekapBulananController extends Controller
         ->orderBy('tanggal', 'desc')
         ->get()
         ->groupBy(function ($item) {
+            // Ini berguna untuk tampilan di mana Anda ingin mengelompokkan data per hari.
             return \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y');
         });
 
@@ -46,6 +50,7 @@ class RekapBulananController extends Controller
 
     public function print($tanggal)
     {
+        // mengubah format tanggal
         $parsedTanggal = \Carbon\Carbon::createFromFormat('d-m-Y', $tanggal)->format('Y-m-d');
     
         $rekaps = \App\Models\RekapBulanan::with('balita')

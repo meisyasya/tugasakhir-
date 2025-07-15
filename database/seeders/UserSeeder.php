@@ -28,9 +28,9 @@ class UserSeeder extends Seeder
 
         // Bidan user
         $bidan = User::firstOrCreate(
-            ['email' => 'bidan@example.com'],
+            ['email' => 'ainusafaf28@gmail.com'],
             [
-                'name' => 'Bidan Siti',
+                'name' => 'Bidan Ainus',
                 'password' => Hash::make('bidan123'),
             ]
         );
@@ -41,7 +41,7 @@ class UserSeeder extends Seeder
 
         // Pemerintah user
         $pemerintah = User::firstOrCreate(
-            ['email' => 'pemerintah@example.com'],
+            ['email' => 'pemerintahdesabpayung@gmail.com'],
             [
                 'name' => 'PemDes',
                 'password' => Hash::make('pemdes123'),

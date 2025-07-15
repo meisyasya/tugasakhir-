@@ -60,7 +60,10 @@
         </div>
 
         @if($token)
-            <a href="{{ route('validasi-forgot-password', ['token' => $token]) }}" class="reset-link">
+            {{-- <a href="{{ route('validasi-forgot-password', ['token' => $token]) }}" class="reset-link">
+                Reset Password
+            </a> --}}
+            <a href="{{ route('reset-password', ['token' => $token]) }}" class="reset-link">
                 Reset Password
             </a>
         @else

@@ -115,7 +115,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <label for="nik_ibu"><i class="fas fa-id-card"></i> NIK Ibu</label>
-                                        <input type="number" name="nik_ibu" id="nik_ibu" class="form-control @error('nik') is-invalid @enderror" value="{{ Auth::user()->nik }}" required>
+                                        <input type="number" name="nik_ibu" id="nik_ibu" class="form-control @error('nik') is-invalid @enderror" value="{{ Auth::user()->nik }}" readonly>
                                         @error('nik')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror

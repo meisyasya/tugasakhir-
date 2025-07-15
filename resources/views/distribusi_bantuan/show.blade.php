@@ -280,6 +280,24 @@
         </div>
         @endcan
 
+        @can('post-bidan')
+        <div class="d-flex justify-content-start gap-2 mb-4">
+    
+            {{-- Tombol Upload Laporan --}}
+            <a href="{{ route('bidan.DistribusiBantuanCreate', ['id' => $diagnosis->id]) }}" class="btn btn-success d-flex align-items-center">
+                <i class="fas fa-upload me-2"></i>
+                <span>Upload Laporan</span>
+            </a>
+    
+            {{-- Tombol Cetak Laporan --}}
+            <a href="{{ route('bidan.cetakLaporan', ['id' => $diagnosis->id]) }}" class="btn btn-secondary d-flex align-items-center">
+                <i class="fas fa-print me-2"></i>
+                <span>Cetak Laporan</span>
+            </a>
+    
+        </div>
+        @endcan
+
         <!-- Daftar Distribusi Bantuan -->
         <div class="card card-custom">
             <div class="card-header card-header-custom">Daftar Distribusi Bantuan</div>
@@ -386,6 +404,48 @@
 
                                     <!-- Tombol Edit -->
                                     <a href="{{ route('kader.DistribusiBantuanEdit', $bantuan->id) }}" class="btn btn-sm btn-warning ms-1">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </a>
+                                    @endcan
+
+
+                                    @can('post-bidan')
+                                
+                                    <!-- Form Hapus dengan Modal -->
+                                    <form action="{{ route('bidan.DistribusiBantuanDelete', ['distribusi_bantuan' => $bantuan->id]) }}" method="POST" style="display: inline-block;">
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <!-- Tombol buka modal -->
+                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#hapusModal{{ $bantuan->id }}">
+                                            <i class="fas fa-trash me-1"></i> Hapus
+                                        </button>
+                                        
+
+                                        <!-- Modal konfirmasi hapus -->
+                                        <div class="modal fade" id="hapusModal{{ $bantuan->id }}" tabindex="-1" aria-labelledby="hapusModalLabel{{ $bantuan->id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="hapusModalLabel{{ $bantuan->id }}">Konfirmasi Penghapusan</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Apakah Anda yakin ingin menghapus data ini?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                        <button type="submit" class="btn btn-danger">
+                                                            <i class="bi bi-trash"></i>Hapus
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+
+                                    <!-- Tombol Edit -->
+                                    <a href="{{ route('bidan.DistribusiBantuanEdit', $bantuan->id) }}" class="btn btn-sm btn-warning ms-1">
                                         <i class="fas fa-edit me-1"></i>Edit
                                     </a>
                                     @endcan

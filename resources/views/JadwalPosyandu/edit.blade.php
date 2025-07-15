@@ -55,7 +55,7 @@
 
                         <div class="mb-3">
                             <label for="nama" class="form-label">Nama Posyandu</label>
-                            <input type="text" class="form-control" id="nama" name="nama" value="{{ old('nama', $jadwal->nama) }}" >
+                            <input type="text" class="form-control" id="nama" name="nama" value="{{ old('nama', $jadwal->nama) }}" readonly>
                         </div>
 
                         <div class="mb-3">
@@ -65,7 +65,7 @@
 
                         <div class="mb-3">
                             <label for="lokasi" class="form-label">Lokasi</label>
-                            <input type="text" class="form-control" id="lokasi" name="lokasi" value="{{ old('lokasi', $jadwal->lokasi) }}" readonly                  >
+                            <input type="text" class="form-control" id="lokasi" name="lokasi" value="{{ old('lokasi', $jadwal->lokasi) }}" >
                         </div>
 
                         <button type="submit" class="btn btn-primary">

@@ -15,6 +15,7 @@ class UsersController extends Controller
      */
     public function index(Request $request)
 {
+    // Menginisialisasi query builder untuk model User.
     $query = User::query();
 
     // Cek apakah ada input pencarian
