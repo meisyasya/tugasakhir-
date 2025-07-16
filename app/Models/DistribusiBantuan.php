@@ -34,7 +34,7 @@ class DistribusiBantuan extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    protected $table = 'distribusi_bantuans'; // kalau perlu
+    protected $table = 'distribusi_bantuans'; 
 
 
 

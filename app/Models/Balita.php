@@ -45,9 +45,9 @@ class Balita extends Model
         return $this->hasMany(DataStunting::class);
     }
 
-    public function rekapBulanan() // <-- Ganti nama relasi menjadi rekapBulanan (atau nama lain yang sesuai)
+    public function rekapBulanan() 
     {
-        return $this->hasMany(RekapBulanan::class, 'balita_id'); // <-- Pastikan ini menunjuk ke RekapBulanan::class
+        return $this->hasMany(RekapBulanan::class, 'balita_id'); 
     }
 
 }

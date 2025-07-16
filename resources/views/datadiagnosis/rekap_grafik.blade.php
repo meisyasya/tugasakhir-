@@ -133,6 +133,7 @@
                 <table class="who-table">
                     <thead>
                         <tr>
+                         {{-- sangat pendek, pendek, normal, tinggi, sangat tinggi --}}
                             <th>Usia (bulan)</th>
                             <th>P3 (-2.5 SD)</th>
                             <th>P15 (-1 SD)</th>
@@ -154,7 +155,8 @@
                             @endphp
                             <tr class="{{ $isHighlight ? 'highlight-row' : '' }}">
                                 <td>{{ $standard['usia'] }}</td>
-                                <td>{{ number_format($standard['3rd'], 2) }}</td>
+                                {{-- Nilai tinggi badan pada persentil 3. --}}
+                                <td>{{ number_format($standard['3rd'], 2) }}</td>  
                                 <td>{{ number_format($standard['15th'], 2) }}</td>
                                 <td>{{ number_format($standard['median'], 2) }}</td>
                                 <td>{{ number_format($standard['85th'], 2) }}</td>
@@ -177,32 +179,35 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> {{-- Sertakan Chart.js --}}
 
 <script>
+    
     document.addEventListener('DOMContentLoaded', function () {
         // --- Grafik Tinggi Badan per Usia (TB/U) ---
         const ctxHeight = document.getElementById('heightForAgeChart').getContext('2d');
-
-        const rekapData = @json($rekapData);
-        const whoStandardsHeight = @json($selectedWhoStandardHeight);
+        
+        const rekapData = @json($rekapData); //mengubah php ke js
+        const whoStandardsHeight = @json($selectedWhoStandardHeight); //mengubah standar who menjadi js
 
         let minUsia = 0;
         let maxUsia = 60; // Default WHO max age
         if (rekapData.length > 0) {
-            minUsia = Math.min(minUsia, ...rekapData.map(d => d.usia));
-            maxUsia = Math.max(maxUsia, ...rekapData.map(d => d.usia));
+            minUsia = Math.min(minUsia, ...rekapData.map(d => d.usia)); //menentukan usia minimum
+            maxUsia = Math.max(maxUsia, ...rekapData.map(d => d.usia)); //menentukan usia maksimum
         }
-        const chartLabels = Array.from({ length: maxUsia + 1 }, (_, i) => i);
+        const chartLabels = Array.from({ length: maxUsia + 1 }, (_, i) => i); //membuat array untuk sumbu x.usia
 
         const balitaHeightData = [];
         rekapData.forEach(item => {
-            balitaHeightData.push({ x: item.usia, y: item.tb });
+            balitaHeightData.push({ x: item.usia, y: item.tb }); //memformat  tinggi balita untuk chart js
         });
 
-        const p3DataHeight = whoStandardsHeight.map(item => ({ x: item.usia, y: item['3rd'] }));
+
+        const p3DataHeight = whoStandardsHeight.map(item => ({ x: item.usia, y: item['3rd'] })); //Memformat data persentil 3 WHO
         const p15DataHeight = whoStandardsHeight.map(item => ({ x: item.usia, y: item['15th'] }));
         const medianDataHeight = whoStandardsHeight.map(item => ({ x: item.usia, y: item['median'] }));
         const p85DataHeight = whoStandardsHeight.map(item => ({ x: item.usia, y: item['85th'] }));
         const p97DataHeight = whoStandardsHeight.map(item => ({ x: item.usia, y: item['97th'] }));
 
+        //Membuat instance grafik Chart.js
         new Chart(ctxHeight, {
             type: 'line',
             data: {
@@ -222,14 +227,19 @@
                         parsing: { xAxisKey: 'x', yAxisKey: 'y' }
                     },
                     {
+                        //Label untuk garis standar WHO P3.
                         label: 'WHO P3 (Sangat Pendek)',
+                        //Data persentil 3 WHO.
                         data: p3DataHeight,
+                        //Warna garis merah.
                         borderColor: 'rgba(255, 99, 132, 0.7)',
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        // Garis putus-putus.
                         borderDash: [5, 5],
                         fill: false,
                         pointRadius: 0,
                         tension: 0.4,
+                        // Tidak menampilkan titik
                         parsing: { xAxisKey: 'x', yAxisKey: 'y' }
                     },
                     {

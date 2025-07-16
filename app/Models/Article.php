@@ -13,7 +13,6 @@ class Article extends Model
     use HasFactory;
     protected $fillable = ['user_id','category_id', 'title', 'slug', 'desc', 'img', 'views', 'status', 'publish_date'];
 
-    // relasi ke category(agar memanggil nama bukan angka di table )
     public function category(): BelongsTo
     {
         return $this->belongsTo(CategoryArticle::class, 'category_id'); 
